@@ -11,6 +11,11 @@
         <p>
             Découvrez nos sondages en cours et partagez votre opinion
         </p>
+        {% if surveys_count is not None %}
+        <p style="font-size: 0.875rem; opacity: 0.85; margin-top: 0.5rem;">
+            {{ surveys_count }} sondage{{ surveys_count|pluralize }} actif{{ surveys_count|pluralize }}
+        </p>
+        {% endif %}
     </div>
 </div>
 
@@ -18,7 +23,7 @@
     {% if surveys %}
         <div class="row">
             {% for survey in surveys %}
-            <div class="col-md-6 mb-4">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="survey-card">
                     <h3 class="survey-title">{{ survey.title }}</h3>
                     <p class="survey-description">{{ survey.description }}</p>

@@ -14,6 +14,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
         }
         
         body {
@@ -21,6 +27,7 @@
             background: #f8fafc;
             color: #1e293b;
             min-height: 100vh;
+            overflow-x: hidden;
         }
         
         .navbar {
@@ -85,6 +92,9 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             border: 1px solid #e2e8f0;
             transition: all 0.3s ease;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
         }
         
         .survey-card:hover {
@@ -389,6 +399,7 @@
             
             .survey-card {
                 padding: 1.5rem;
+                margin-bottom: 1rem;
             }
             
             .survey-title {
@@ -401,6 +412,7 @@
             
             .survey-meta {
                 gap: 1rem;
+                font-size: 0.8rem;
             }
             
             .btn-custom {
@@ -438,6 +450,22 @@
             
             .empty-state h3 {
                 font-size: 1.25rem;
+            }
+            
+            /* S'assurer que le contenu est visible */
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            
+            .row {
+                margin-left: -15px;
+                margin-right: -15px;
+            }
+            
+            [class*="col-"] {
+                padding-left: 15px;
+                padding-right: 15px;
             }
         }
         

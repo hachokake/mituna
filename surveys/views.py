@@ -7,6 +7,7 @@ from .models import Survey, Question, Choice, Response, Answer
 
 def home(request):
     """Page d'accueil avec la liste des sondages actifs"""
+    # Récupérer tous les sondages actifs
     surveys = Survey.objects.filter(
         is_active=True,
         start_date__lte=timezone.now()
@@ -14,12 +15,32 @@ def home(request):
         Q(end_date__isnull=True) | Q(end_date__gte=timezone.now())
     ).annotate(
         response_count=Count('responses')
-    )
+    ).order_by('-created_at')
     
     context = {
         'surveys': surveys,
+        'surveys_count': surveys.count(),
     }
     return render(request, 'surveys/home.html', context)
+
+
+def home_debug(request):
+    """Page de debug pour tester l'affichage des sondages sur mobile"""
+    # Récupérer tous les sondages actifs
+    surveys = Survey.objects.filter(
+        is_active=True,
+        start_date__lte=timezone.now()
+    ).filter(
+        Q(end_date__isnull=True) | Q(end_date__gte=timezone.now())
+    ).annotate(
+        response_count=Count('responses')
+    ).order_by('-created_at')
+    
+    context = {
+        'surveys': surveys,
+        'surveys_count': surveys.count(),
+    }
+    return render(request, 'surveys/home_debug.html', context)
 
 
 def survey_detail(request, pk):

@@ -9,7 +9,10 @@ class AdminRegistrationForm(UserCreationForm):
         required=True,
         widget=forms.EmailInput(attrs={
             'class': 'form-control',
-            'placeholder': 'admin@example.com'
+            'placeholder': 'admin@example.com',
+            'autocapitalize': 'off',
+            'autocorrect': 'off',
+            'spellcheck': 'false'
         })
     )
     first_name = forms.CharField(
@@ -35,7 +38,10 @@ class AdminRegistrationForm(UserCreationForm):
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Nom d\'utilisateur'
+                'placeholder': 'Nom d\'utilisateur',
+                'autocapitalize': 'off',
+                'autocorrect': 'off',
+                'spellcheck': 'false'
             }),
         }
     
@@ -43,11 +49,17 @@ class AdminRegistrationForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         self.fields['password1'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Mot de passe'
+            'placeholder': 'Mot de passe',
+            'autocapitalize': 'off',
+            'autocorrect': 'off',
+            'spellcheck': 'false'
         })
         self.fields['password2'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Confirmer le mot de passe'
+            'placeholder': 'Confirmer le mot de passe',
+            'autocapitalize': 'off',
+            'autocorrect': 'off',
+            'spellcheck': 'false'
         })
     
     def save(self, commit=True):

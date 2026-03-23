@@ -5,6 +5,7 @@ from . import admin_views
 urlpatterns = [
     # URLs publiques
     path('', views.home, name='home'),
+    path('debug/', views.home_debug, name='home_debug'),
     path('survey/<int:pk>/', views.survey_detail, name='survey_detail'),
     path('survey/<int:pk>/submit/', views.survey_submit, name='survey_submit'),
     path('survey/<int:pk>/results/', views.survey_results, name='survey_results'),

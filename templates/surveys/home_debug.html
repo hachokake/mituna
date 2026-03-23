@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Debug - Sondages Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        .debug-box {
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .debug-title {
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .survey-item {
+            background: #e7f3ff;
+            border: 1px solid #007bff;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .btn-test {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-box">
+        <div class="debug-title">📱 TEST MOBILE - Page de diagnostic</div>
+        <p>Cette page permet de vérifier si les sondages sont chargés correctement</p>
+        <p><strong>Appareil:</strong> <span id="device-info"></span></p>
+        <p><strong>Résolution:</strong> <span id="resolution"></span></p>
+        <p><strong>Date/heure:</strong> {{ "now"|date:"Y-m-d H:i:s" }}</p>
+    </div>
+
+    <div class="debug-box">
+        <div class="debug-title">📊 Nombre de sondages</div>
+        <p style="font-size: 24px; font-weight: bold; color: {% if surveys %}#28a745{% else %}#dc3545{% endif %};">
+            {{ surveys.count }} sondage(s) trouvé(s)
+        </p>
+        {% if surveys_count is not None %}
+        <p>Count variable: {{ surveys_count }}</p>
+        {% endif %}
+    </div>
+
+    {% if surveys %}
+        <div class="debug-box">
+            <div class="debug-title">✅ Sondages actifs détectés</div>
+            {% for survey in surveys %}
+            <div class="survey-item">
+                <h3 style="margin: 0 0 10px 0;">{{ survey.title }}</h3>
+                <p style="margin: 0 0 10px 0;">{{ survey.description }}</p>
+                <p style="margin: 0; font-size: 12px;">
+                    <i class="fas fa-calendar"></i> {{ survey.created_at|date:"d/m/Y" }} | 
+                    <i class="fas fa-users"></i> {{ survey.response_count }} réponses
+                </p>
+                <a href="{% url 'survey_detail' survey.id %}" class="btn-test">
+                    Voir ce sondage
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="debug-box">
+            <div class="debug-title" style="color: #dc3545;">❌ Aucun sondage détecté</div>
+            <p>La variable 'surveys' est vide ou None</p>
+            <p>Cela signifie que :</p>
+            <ul>
+                <li>Soit la requête Django ne renvoie aucun résultat</li>
+                <li>Soit il y a un problème de filtrage</li>
+                <li>Soit la base de données est vide</li>
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="debug-box">
+        <div class="debug-title">🔗 Navigation</div>
+        <a href="{% url 'home' %}" class="btn-test" style="background: #007bff;">
+            <i class="fas fa-home"></i> Retour à l'accueil normal
+        </a>
+        <a href="/admin/surveys/survey/" class="btn-test" style="background: #6c757d;">
+            <i class="fas fa-cog"></i> Admin Django
+        </a>
+    </div>
+
+    <script>
+        // Info appareil
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        document.getElementById('device-info').textContent = isMobile ? 'Mobile détecté ✅' : 'Desktop détecté 🖥️';
+        document.getElementById('resolution').textContent = window.innerWidth + ' x ' + window.innerHeight;
+    </script>
+</body>
+</html>
