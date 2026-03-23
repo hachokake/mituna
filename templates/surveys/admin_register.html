@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+
+{% block title %}Créer un Compte Administrateur - Sondages Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .register-card {
+        max-width: 600px;
+        width: 100%;
+        background: white;
+        border-radius: 25px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+    
+    .register-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+    
+    .register-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+    
+    .register-header p {
+        opacity: 0.95;
+        margin: 0;
+    }
+    
+    .register-body {
+        padding: 3rem 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-label i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1.25rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .help-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+        display: block;
+    }
+    
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0 0;
+    }
+    
+    .errorlist li {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .errorlist li:before {
+        content: "⚠";
+        font-size: 1.1rem;
+    }
+    
+    .btn-register {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+    
+    .info-box {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-left: 4px solid #3b82f6;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    
+    .info-box i {
+        color: #1e40af;
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+    }
+    
+    .info-box strong {
+        color: #1e40af;
+    }
+    
+    .security-note {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 4px solid #f59e0b;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-top: 2rem;
+        font-size: 0.875rem;
+    }
+    
+    .security-note i {
+        color: #92400e;
+        margin-right: 0.5rem;
+    }
+    
+    .password-requirements {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-top: 0.5rem;
+    }
+    
+    .password-requirements ul {
+        margin: 0.5rem 0 0 0;
+        padding-left: 1.5rem;
+    }
+    
+    .password-requirements li {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <i class="fas fa-user-shield fa-3x mb-3"></i>
+            <h1>Créer un Compte Administrateur</h1>
+            <p>Configuration initiale de votre plateforme de sondages</p>
+        </div>
+        
+        <div class="register-body">
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <strong>Première Connexion</strong><br>
+                Créez votre compte administrateur pour accéder au panneau de contrôle et gérer vos sondages.
+            </div>
+            
+            <div class="info-box" style="background-color: #fef3c7; border-left-color: #f59e0b;">
+                <i class="fas fa-key" style="color: #f59e0b;"></i>
+                <strong>Accès direct</strong><br>
+                Après la création de votre compte, accédez à l'administration via <strong>/admin</strong>
+            </div>
+            
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_username" class="form-label">
+                        <i class="fas fa-user"></i>Nom d'utilisateur
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.username.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <small class="help-text">
+                        Lettres, chiffres et @/./+/-/_ uniquement.
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_email" class="form-label">
+                        <i class="fas fa-envelope"></i>Adresse Email
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_first_name" class="form-label">
+                                <i class="fas fa-id-card"></i>Prénom
+                            </label>
+                            {{ form.first_name }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_last_name" class="form-label">
+                                <i class="fas fa-id-card"></i>Nom
+                            </label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_password1" class="form-label">
+                        <i class="fas fa-lock"></i>Mot de passe
+                    </label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password1.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    
+                    <div class="password-requirements">
+                        <strong style="font-size: 0.875rem; color: #374151;">
+                            <i class="fas fa-key me-1"></i>Exigences du mot de passe :
+                        </strong>
+                        <ul>
+                            <li>Au moins 8 caractères</li>
+                            <li>Ne doit pas être entièrement numérique</li>
+                            <li>Ne doit pas être trop similaire à vos autres informations</li>
+                            <li>Ne doit pas être un mot de passe courant</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_password2" class="form-label">
+                        <i class="fas fa-lock"></i>Confirmer le mot de passe
+                    </label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password2.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn-register">
+                    <i class="fas fa-shield-alt me-2"></i>Créer le Compte Administrateur
+                </button>
+                
+                <div class="security-note">
+                    <i class="fas fa-lock"></i>
+                    <strong>Sécurité :</strong> Cette page n'est accessible que pour créer le premier administrateur. 
+                    Une fois créé, utilisez l'interface d'administration pour gérer les autres utilisateurs.
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

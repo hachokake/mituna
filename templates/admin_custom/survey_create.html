@@ -1,0 +1,403 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}Créer un Sondage{% endblock %}
+{% block header_title %}Créer un Nouveau Sondage{% endblock %}
+
+{% block extra_css %}
+<style>
+    .question-card {
+        background: #fff;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .question-card:hover {
+        border-color: #3b82f6;
+    }
+    
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .question-number {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: #fff;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+    
+    .btn-remove-question {
+        background: #fee2e2;
+        color: #ef4444;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-remove-question:hover {
+        background: #ef4444;
+        color: #fff;
+    }
+    
+    .choice-item {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+    
+    .choice-item input {
+        flex: 1;
+    }
+    
+    .btn-remove-choice {
+        background: #fee2e2;
+        color: #ef4444;
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-remove-choice:hover {
+        background: #ef4444;
+        color: #fff;
+    }
+    
+    .btn-add-choice {
+        background: #dbeafe;
+        color: #3b82f6;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-add-choice:hover {
+        background: #3b82f6;
+        color: #fff;
+    }
+    
+    .btn-add-question {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-add-question:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+    
+    .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post" id="surveyForm">
+    {% csrf_token %}
+    
+    <!-- Informations du Sondage -->
+    <div class="custom-table mb-4">
+        <div style="padding: 2rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem;">
+                <i class="fas fa-info-circle"></i> Informations du Sondage
+            </h3>
+            
+            <div class="mb-3">
+                <label for="title" class="form-label" style="font-weight: 600; color: #1e293b;">Titre du Sondage *</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="title" 
+                       name="title" 
+                       required
+                       placeholder="Ex: Satisfaction Client 2024">
+            </div>
+            
+            <div class="mb-3">
+                <label for="description" class="form-label" style="font-weight: 600; color: #1e293b;">Description</label>
+                <textarea class="form-control" 
+                          id="description" 
+                          name="description" 
+                          rows="3"
+                          placeholder="Décrivez brièvement votre sondage..."></textarea>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               id="is_active" 
+                               name="is_active"
+                               checked>
+                        <label class="form-check-label" for="is_active" style="font-weight: 500;">
+                            Activer le sondage
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               id="allow_multiple_submissions" 
+                               name="allow_multiple_submissions">
+                        <label class="form-check-label" for="allow_multiple_submissions" style="font-weight: 500;">
+                            Permettre plusieurs réponses
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               id="show_results" 
+                               name="show_results"
+                               checked>
+                        <label class="form-check-label" for="show_results" style="font-weight: 500;">
+                            Afficher les résultats
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Questions -->
+    <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem;">
+        <i class="fas fa-question-circle"></i> Questions du Sondage
+    </h3>
+    
+    <div id="questionsContainer">
+        <!-- Les questions seront ajoutées ici dynamiquement -->
+    </div>
+    
+    <button type="button" class="btn-add-question" onclick="addQuestion()">
+        <i class="fas fa-plus-circle me-2"></i>
+        Ajouter une Question
+    </button>
+    
+    <!-- Hidden field pour stocker les données JSON -->
+    <input type="hidden" id="questions_data" name="questions_data">
+    
+    <!-- Boutons de Soumission -->
+    <div class="d-flex gap-3 justify-content-end">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-lg" style="border-radius: 12px;">
+            <i class="fas fa-times me-2"></i>
+            Annuler
+        </a>
+        <button type="submit" class="btn-custom btn-primary-custom btn-lg">
+            <i class="fas fa-check me-2"></i>
+            Créer le Sondage
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let questionCounter = 0;
+
+function addQuestion() {
+    questionCounter++;
+    const container = document.getElementById('questionsContainer');
+    
+    const questionCard = document.createElement('div');
+    questionCard.className = 'question-card';
+    questionCard.id = `question-${questionCounter}`;
+    
+    questionCard.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${questionCounter}</div>
+            <button type="button" class="btn-remove-question" onclick="removeQuestion(${questionCounter})">
+                <i class="fas fa-trash me-2"></i>Supprimer
+            </button>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label" style="font-weight: 600; color: #1e293b;">Question *</label>
+            <input type="text" 
+                   class="form-control question-text" 
+                   placeholder="Entrez votre question..."
+                   required>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label" style="font-weight: 600; color: #1e293b;">Type de Question *</label>
+            <select class="form-select question-type" onchange="handleTypeChange(${questionCounter})">
+                <option value="text">Réponse Texte</option>
+                <option value="single" selected>Choix Unique (Radio)</option>
+                <option value="multiple">Choix Multiple (Checkbox)</option>
+                <option value="rating">Notation (1-5 étoiles)</option>
+            </select>
+        </div>
+        
+        <div class="choices-container" id="choices-${questionCounter}">
+            <label class="form-label" style="font-weight: 600; color: #1e293b;">Choix de Réponse</label>
+            <div class="choices-list" id="choices-list-${questionCounter}">
+                <div class="choice-item">
+                    <input type="text" class="form-control choice-text" placeholder="Choix 1">
+                    <button type="button" class="btn-remove-choice" onclick="removeChoice(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="choice-item">
+                    <input type="text" class="form-control choice-text" placeholder="Choix 2">
+                    <button type="button" class="btn-remove-choice" onclick="removeChoice(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="button" class="btn-add-choice" onclick="addChoice(${questionCounter})">
+                <i class="fas fa-plus me-2"></i>Ajouter un Choix
+            </button>
+        </div>
+        
+        <div class="mt-3">
+            <div class="form-check">
+                <input class="form-check-input question-required" type="checkbox" id="required-${questionCounter}" checked>
+                <label class="form-check-label" for="required-${questionCounter}" style="font-weight: 500;">
+                    Question obligatoire
+                </label>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(questionCard);
+}
+
+function removeQuestion(id) {
+    const question = document.getElementById(`question-${id}`);
+    if (question) {
+        question.remove();
+        renumberQuestions();
+    }
+}
+
+function renumberQuestions() {
+    const questions = document.querySelectorAll('.question-card');
+    questions.forEach((q, index) => {
+        const numberBadge = q.querySelector('.question-number');
+        if (numberBadge) {
+            numberBadge.textContent = index + 1;
+        }
+    });
+}
+
+function addChoice(questionId) {
+    const choicesList = document.getElementById(`choices-list-${questionId}`);
+    const choiceCount = choicesList.children.length + 1;
+    
+    const choiceItem = document.createElement('div');
+    choiceItem.className = 'choice-item';
+    choiceItem.innerHTML = `
+        <input type="text" class="form-control choice-text" placeholder="Choix ${choiceCount}">
+        <button type="button" class="btn-remove-choice" onclick="removeChoice(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    choicesList.appendChild(choiceItem);
+}
+
+function removeChoice(button) {
+    const choiceItem = button.parentElement;
+    choiceItem.remove();
+}
+
+function handleTypeChange(questionId) {
+    const questionCard = document.getElementById(`question-${questionId}`);
+    const typeSelect = questionCard.querySelector('.question-type');
+    const choicesContainer = document.getElementById(`choices-${questionId}`);
+    
+    if (typeSelect.value === 'text' || typeSelect.value === 'rating') {
+        choicesContainer.style.display = 'none';
+    } else {
+        choicesContainer.style.display = 'block';
+    }
+}
+
+// Collecte les données avant la soumission
+document.getElementById('surveyForm').addEventListener('submit', function(e) {
+    const questions = [];
+    const questionCards = document.querySelectorAll('.question-card');
+    
+    questionCards.forEach((card, index) => {
+        const text = card.querySelector('.question-text').value;
+        const type = card.querySelector('.question-type').value;
+        const required = card.querySelector('.question-required').checked;
+        
+        const choices = [];
+        if (type === 'single' || type === 'multiple') {
+            const choiceInputs = card.querySelectorAll('.choice-text');
+            choiceInputs.forEach(input => {
+                if (input.value.trim()) {
+                    choices.push(input.value.trim());
+                }
+            });
+        }
+        
+        questions.push({
+            text: text,
+            type: type,
+            required: required,
+            order: index,
+            choices: choices
+        });
+    });
+    
+    document.getElementById('questions_data').value = JSON.stringify(questions);
+});
+
+// Ajouter la première question au chargement
+window.addEventListener('DOMContentLoaded', function() {
+    addQuestion();
+});
+</script>
+{% endblock %}

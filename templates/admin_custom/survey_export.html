@@ -1,0 +1,304 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block header_title %}Export de Document{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="max-width: 800px; margin: 0 auto;">
+    <div class="mb-4">
+        <a href="{% url 'admin_documents' %}" style="color: #64748b; text-decoration: none; font-weight: 500;">
+            <i class="fas fa-arrow-left me-2"></i>Retour aux documents
+        </a>
+    </div>
+
+    <div class="card" style="border: none; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); border-radius: 16px 16px 0 0; padding: 2rem;">
+            <h3 style="color: #fff; font-weight: 700; margin: 0;">
+                <i class="fas fa-file-export me-2"></i>
+                Export du Sondage
+            </h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="mb-4">
+                <h5 style="color: #1e293b; font-weight: 600;">{{ survey.title }}</h5>
+                {% if survey.description %}
+                    <p style="color: #64748b; margin-top: 0.5rem;">{{ survey.description }}</p>
+                {% endif %}
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #3b82f6;">
+                        <div style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.5rem;">Réponses Totales</div>
+                        <div style="color: #1e293b; font-size: 2rem; font-weight: 700;">{{ total_responses }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #8b5cf6;">
+                        <div style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.5rem;">Questions</div>
+                        <div style="color: #1e293b; font-size: 2rem; font-weight: 700;">{{ survey.questions.count }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <hr style="margin: 2rem 0;">
+
+            <h5 style="color: #1e293b; font-weight: 600; margin-bottom: 1.5rem;">
+                <i class="fas fa-cog me-2" style="color: #3b82f6;"></i>
+                Configuration de l'Export
+            </h5>
+
+            <!-- Ordre de tri -->
+            <div class="mb-4">
+                <label class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem;">
+                    <i class="fas fa-sort me-2" style="color: #3b82f6;"></i>
+                    Ordre de tri
+                </label>
+                <select id="sortOrderSelect" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;">
+                    <option value="date_desc">Date (plus récente en premier)</option>
+                    <option value="date_asc">Date (plus ancienne en premier)</option>
+                    <option value="name_asc">Nom (A → Z)</option>
+                    <option value="name_desc">Nom (Z → A)</option>
+                    <option value="email_asc">Email (A → Z)</option>
+                    <option value="email_desc">Email (Z → A)</option>
+                </select>
+                <small style="color: #64748b; margin-top: 0.5rem; display: block;">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Choisissez l'ordre dans lequel les réponses seront exportées
+                </small>
+            </div>
+
+            <!-- Filtres avancés -->
+            <div class="mb-4">
+                <label class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem;">
+                    <i class="fas fa-filter me-2" style="color: #8b5cf6;"></i>
+                    Filtres
+                </label>
+                <select id="filterSelect" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;">
+                    <option value="all">Toutes les réponses</option>
+                    <option value="unique_names">Uniquement les noms uniques (1 réponse par nom)</option>
+                    <option value="unique_emails">Uniquement les emails uniques (1 réponse par email)</option>
+                    <option value="last_7_days">Seulement les 7 derniers jours</option>
+                    <option value="last_30_days">Seulement les 30 derniers jours</option>
+                    <option value="this_month">Seulement ce mois-ci</option>
+                    <option value="manual">Sélection manuelle des réponses...</option>
+                </select>
+                <small style="color: #64748b; margin-top: 0.5rem; display: block;">
+                    <i class="fas fa-filter me-1"></i>
+                    Appliquer des filtres pour exporter uniquement certaines réponses
+                </small>
+            </div>
+
+            <!-- Nombre de réponses à exporter -->
+            <div class="mb-4">
+                <label class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem;">
+                    <i class="fas fa-list-ol me-2" style="color: #10b981;"></i>
+                    Limite de réponses
+                </label>
+                <select id="limitSelect" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;">
+                    <option value="0">Toutes (après filtres) - {{ total_responses }} disponibles</option>
+                    {% if total_responses >= 10 %}
+                        <option value="10">10 réponses maximum</option>
+                    {% endif %}
+                    {% if total_responses >= 25 %}
+                        <option value="25">25 réponses maximum</option>
+                    {% endif %}
+                    {% if total_responses >= 50 %}
+                        <option value="50">50 réponses maximum</option>
+                    {% endif %}
+                    {% if total_responses >= 100 %}
+                        <option value="100">100 réponses maximum</option>
+                    {% endif %}
+                    {% if total_responses >= 250 %}
+                        <option value="250">250 réponses maximum</option>
+                    {% endif %}
+                    {% if total_responses >= 500 %}
+                        <option value="500">500 réponses maximum</option>
+                    {% endif %}
+                    {% if total_responses >= 1000 %}
+                        <option value="1000">1000 réponses maximum</option>
+                    {% endif %}
+                    <option value="custom">Personnalisé...</option>
+                </select>
+                
+                <!-- Input personnalisé -->
+                <div id="customLimitDiv" style="display: none; margin-top: 0.75rem;">
+                    <input type="number" id="customLimitInput" class="form-control" 
+                           placeholder="Entrez le nombre de réponses" 
+                           min="1" max="{{ total_responses }}"
+                           style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;">
+                </div>
+                
+                <small style="color: #64748b; margin-top: 0.5rem; display: block;">
+                    <i class="fas fa-info-circle me-1"></i>
+                    La limite s'applique après le tri et les filtres
+                </small>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem;">
+                    Nombre de réponses par page
+                </label>
+                <select id="perPageSelect" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;">
+                    <option value="10" selected>10 réponses par page</option>
+                    <option value="25">25 réponses par page</option>
+                    <option value="50">50 réponses par page</option>
+                    <option value="100">100 réponses par page</option>
+                </select>
+                <small style="color: #64748b; margin-top: 0.5rem; display: block;">
+                    <i class="fas fa-file-alt me-1"></i>
+                    Choisissez combien de réponses afficher sur chaque page du document
+                </small>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem;">
+                    Format d'export
+                </label>
+                <select id="formatSelect" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;">
+                    <option value="html">Document HTML (style administratif)</option>
+                    <option value="csv">Fichier CSV Excel (recommandé pour +500 réponses)</option>
+                </select>
+                <small style="color: #64748b; margin-top: 0.5rem; display: block;">
+                    <i class="fas fa-info-circle me-1"></i>
+                    CSV recommandé pour les très gros volumes (+500 réponses)
+                </small>
+            </div>
+
+            <!-- Avertissement pour gros volumes -->
+            {% if total_responses > 500 %}
+            <div class="alert alert-warning" style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                <div style="color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Gros Volume Détecté ({{ total_responses }} réponses)
+                </div>
+                <p style="color: #92400e; margin: 0;">
+                    Pour des performances optimales, nous recommandons l'export <strong>CSV</strong> pour les sondages avec plus de 500 réponses.
+                    Le CSV s'ouvre directement dans Excel et gère mieux les gros volumes.
+                </p>
+            </div>
+            {% endif %}
+
+            <div class="alert" style="background: #dbeafe; border: none; border-radius: 10px; padding: 1rem;">
+                <div style="color: #1e40af; font-weight: 600; margin-bottom: 0.5rem;">
+                    <i class="fas fa-file-alt me-2"></i>Format du Document
+                </div>
+                <ul style="color: #1e40af; margin: 0; padding-left: 1.5rem;">
+                    <li><strong>HTML:</strong> Document administratif professionnel avec tableaux</li>
+                    <li><strong>CSV:</strong> Compatible Excel, idéal pour analyse de données</li>
+                    <li>Pagination automatique selon le nombre choisi (HTML uniquement)</li>
+                    <li>Format A4 imprimable (HTML convertible en PDF)</li>
+                </ul>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button onclick="previewDocument()" id="previewBtn" class="btn btn-lg" style="background: #fff; border: 2px solid #3b82f6; color: #3b82f6; border-radius: 10px; padding: 1rem; font-weight: 600;">
+                    <i class="fas fa-eye me-2"></i>
+                    Aperçu du Document
+                </button>
+                <button onclick="downloadDocument()" class="btn btn-lg" style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); border: none; color: #fff; border-radius: 10px; padding: 1rem; font-weight: 600;">
+                    <i class="fas fa-download me-2"></i>
+                    Télécharger le Document
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Afficher/masquer l'input personnalisé pour la limite
+document.getElementById('limitSelect').addEventListener('change', function() {
+    const customDiv = document.getElementById('customLimitDiv');
+    if (this.value === 'custom') {
+        customDiv.style.display = 'block';
+    } else {
+        customDiv.style.display = 'none';
+    }
+});
+
+// Gérer la sélection manuelle
+document.getElementById('filterSelect').addEventListener('change', function() {
+    if (this.value === 'manual') {
+        // Rediriger vers la page de sélection manuelle
+        window.location.href = "{% url 'admin_survey_select_responses' survey.id %}";
+    }
+});
+
+// Désactiver l'aperçu si CSV est sélectionné
+document.getElementById('formatSelect').addEventListener('change', function() {
+    const format = this.value;
+    const previewBtn = document.getElementById('previewBtn');
+    const perPageSelect = document.getElementById('perPageSelect');
+    
+    if (format === 'csv') {
+        previewBtn.disabled = true;
+        previewBtn.style.opacity = '0.5';
+        previewBtn.style.cursor = 'not-allowed';
+        perPageSelect.disabled = true;
+        perPageSelect.style.opacity = '0.5';
+    } else {
+        previewBtn.disabled = false;
+        previewBtn.style.opacity = '1';
+        previewBtn.style.cursor = 'pointer';
+        perPageSelect.disabled = false;
+        perPageSelect.style.opacity = '1';
+    }
+});
+
+function getExportParams() {
+    // Récupérer tous les paramètres d'export
+    let limit = document.getElementById('limitSelect').value;
+    
+    // Si limite personnalisée
+    if (limit === 'custom') {
+        const customValue = document.getElementById('customLimitInput').value;
+        if (!customValue || customValue < 1) {
+            alert('Veuillez entrer un nombre valide pour la limite personnalisée.');
+            return null;
+        }
+        limit = customValue;
+    }
+    
+    const perPage = document.getElementById('perPageSelect').value;
+    const format = document.getElementById('formatSelect').value;
+    const sortOrder = document.getElementById('sortOrderSelect').value;
+    const filter = document.getElementById('filterSelect').value;
+    
+    return {
+        limit: limit,
+        per_page: perPage,
+        format: format,
+        sort: sortOrder,
+        filter: filter
+    };
+}
+
+function previewDocument() {
+    const format = document.getElementById('formatSelect').value;
+    if (format === 'csv') {
+        alert('L\'aperçu n\'est pas disponible pour le format CSV. Téléchargez directement le fichier.');
+        return;
+    }
+    
+    const params = getExportParams();
+    if (!params) return;
+    
+    const url = `{% url 'admin_survey_export_preview' survey.id %}?limit=${params.limit}&per_page=${params.per_page}&sort=${params.sort}&filter=${params.filter}`;
+    window.open(url, '_blank');
+}
+
+function downloadDocument() {
+    const params = getExportParams();
+    if (!params) return;
+    
+    // Afficher un message pour les gros volumes
+    const totalResponses = {{ total_responses }};
+    if (totalResponses > 1000 && params.format === 'html') {
+        if (!confirm(`Attention: Vous allez télécharger ${totalResponses} réponses en HTML. Cela peut prendre du temps. Continuer?`)) {
+            return;
+        }
+    }
+    
+    const url = `{% url 'admin_survey_export_download' survey.id %}?limit=${params.limit}&per_page=${params.per_page}&format=${params.format}&sort=${params.sort}&filter=${params.filter}`;
+    window.location.href = url;
+}
+</script>
+{% endblock %}

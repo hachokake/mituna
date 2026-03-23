@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Administration{% endblock %} - Sondages Pro</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        /* Sidebar */
+        .admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            padding: 2rem 0;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Menu Hamburger */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #1e293b;
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-right: 1rem;
+        }
+        
+        .menu-toggle:hover {
+            color: #3b82f6;
+        }
+        
+        /* Overlay pour mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-overlay.active {
+            opacity: 1;
+        }
+        
+        .admin-sidebar .logo {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .admin-sidebar .logo h2 {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .admin-sidebar .logo h2 i {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            padding: 0.5rem;
+            border-radius: 12px;
+            font-size: 1.25rem;
+        }
+        
+        .admin-menu {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .admin-menu li {
+            margin-bottom: 0.25rem;
+        }
+        
+        .admin-menu a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1.5rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .admin-menu a:hover,
+        .admin-menu a.active {
+            color: #fff;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .admin-menu a.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background: linear-gradient(180deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .admin-menu a i {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .admin-main {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .admin-header {
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        
+        .admin-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+        
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .admin-user-info {
+            text-align: right;
+        }
+        
+        .admin-user-info .name {
+            font-weight: 600;
+            color: #1e293b;
+            display: block;
+            font-size: 0.875rem;
+        }
+        
+        .admin-user-info .role {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        
+        .admin-user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+        
+        /* Content */
+        .admin-content {
+            padding: 2rem;
+        }
+        
+        /* Cards */
+        .stat-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        
+        .stat-card .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card.primary .icon {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        .stat-card.success .icon {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .stat-card.warning .icon {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .stat-card.purple .icon {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Buttons */
+        .btn-custom {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            color: #fff;
+        }
+        
+        /* Table */
+        .custom-table {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .custom-table table {
+            width: 100%;
+            margin: 0;
+        }
+        
+        .custom-table thead {
+            background: #f8fafc;
+        }
+        
+        .custom-table th {
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .custom-table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .custom-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        /* Badges */
+        .badge-custom {
+            padding: 0.375rem 0.875rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        /* Messages */
+        .alert-custom {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+        
+        .alert-success-custom {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .alert-error-custom {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .alert-info-custom {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            /* Cacher la sidebar sur mobile par défaut */
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+            
+            /* Afficher la sidebar quand active */
+            .admin-sidebar.active {
+                transform: translateX(0);
+            }
+            
+            /* Afficher le bouton hamburger */
+            .menu-toggle {
+                display: block;
+            }
+            
+            /* Afficher l'overlay quand le menu est ouvert */
+            .sidebar-overlay {
+                display: block;
+            }
+            
+            /* Retirer la marge du contenu principal */
+            .admin-main {
+                margin-left: 0;
+            }
+            
+            /* Adapter le header */
+            .admin-header {
+                padding: 1rem 1rem;
+            }
+            
+            .admin-header h1 {
+                font-size: 1.25rem;
+            }
+            
+            /* Adapter l'avatar utilisateur */
+            .admin-user-info {
+                display: none;
+            }
+            
+            .admin-user-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            /* Adapter le contenu */
+            .admin-content {
+                padding: 1rem;
+            }
+            
+            /* Adapter les cartes */
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-card .value {
+                font-size: 1.5rem;
+            }
+            
+            /* Adapter les tableaux */
+            .custom-table th,
+            .custom-table td {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-header h1 {
+                font-size: 1rem;
+            }
+            
+            .stat-card .value {
+                font-size: 1.25rem;
+            }
+            
+            .stat-card .label {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Overlay pour fermer le menu sur mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="logo">
+            <h2>
+                <i class="fas fa-poll"></i>
+                <span>Sondages Pro</span>
+            </h2>
+        </div>
+        
+        <ul class="admin-menu">
+            <li>
+                <a href="{% url 'admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-th-large"></i>
+                    <span>Tableau de Bord</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_survey_create' %}" class="{% if request.resolver_match.url_name == 'admin_survey_create' %}active{% endif %}">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Nouveau Sondage</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_documents' %}" class="{% if 'documents' in request.resolver_match.url_name or 'export' in request.resolver_match.url_name %}active{% endif %}">
+                    <i class="fas fa-file-download"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'home' %}" target="_blank">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>Voir le Site</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin_logout' %}" style="color: #ef4444;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Déconnexion</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Header -->
+        <header class="admin-header">
+            <div style="display: flex; align-items: center;">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>{% block header_title %}Administration{% endblock %}</h1>
+            </div>
+            
+            <div class="admin-user">
+                <div class="admin-user-info">
+                    <span class="name">{{ user.get_full_name|default:user.username }}</span>
+                    <span class="role">Administrateur</span>
+                </div>
+                <div class="admin-user-avatar">
+                    {{ user.username.0|upper }}
+                </div>
+            </div>
+        </header>
+        
+        <!-- Content -->
+        <div class="admin-content">
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-custom {% if message.tags == 'success' %}alert-success-custom{% elif message.tags == 'error' %}alert-error-custom{% else %}alert-info-custom{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Menu Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('adminSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            // Fonction pour ouvrir le menu
+            function openMenu() {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            }
+            
+            // Fonction pour fermer le menu
+            function closeMenu() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+            
+            // Toggle le menu au clic sur le bouton hamburger
+            menuToggle.addEventListener('click', function() {
+                if (sidebar.classList.contains('active')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            });
+            
+            // Fermer le menu au clic sur l'overlay
+            overlay.addEventListener('click', closeMenu);
+            
+            // Fermer le menu au clic sur un lien du menu (sur mobile)
+            const menuLinks = sidebar.querySelectorAll('.admin-menu a');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Fermer uniquement sur mobile (quand l'overlay est visible)
+                    if (window.innerWidth <= 768) {
+                        closeMenu();
+                    }
+                });
+            });
+            
+            // Fermer le menu si on redimensionne vers desktop
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeMenu();
+                }
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

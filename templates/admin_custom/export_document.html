@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport de Sondage - {{ survey.title }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .page-break { page-break-after: always; }
+            body { margin: 0; padding: 0; }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #000;
+            background: #fff;
+            padding: 20px;
+        }
+
+        .document-container {
+            max-width: 21cm;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* En-tête du document */
+        .document-header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .document-title {
+            font-size: 18pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .document-subtitle {
+            font-size: 14pt;
+            margin-bottom: 5px;
+        }
+
+        .document-date {
+            font-size: 10pt;
+            font-style: italic;
+            color: #333;
+        }
+
+        /* Section d'informations générales */
+        .info-section {
+            margin: 25px 0;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            font-size: 14pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        /* Tableau des statistiques */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            page-break-inside: avoid;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Description du sondage */
+        .survey-description {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #000;
+            background-color: #fafafa;
+            page-break-inside: avoid;
+        }
+
+        .survey-description p {
+            text-align: justify;
+            line-height: 1.8;
+        }
+
+        /* Section des réponses */
+        .responses-section {
+            margin-top: 30px;
+        }
+
+        .response-block {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+            border: 1px solid #000;
+            padding: 15px;
+        }
+
+        .response-header {
+            background-color: #e8e8e8;
+            padding: 10px;
+            margin: -15px -15px 15px -15px;
+            border-bottom: 2px solid #000;
+        }
+
+        .response-number {
+            font-weight: bold;
+            font-size: 13pt;
+        }
+
+        .participant-info {
+            margin: 5px 0;
+            font-size: 11pt;
+        }
+
+        .question-answer {
+            margin: 12px 0;
+            padding-left: 20px;
+        }
+
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .answer-text {
+            padding-left: 20px;
+            border-left: 3px solid #ccc;
+            margin-left: 10px;
+        }
+
+        /* Pied de page */
+        .document-footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 2px solid #000;
+            text-align: center;
+            font-size: 10pt;
+            color: #666;
+        }
+
+        /* Numérotation des pages */
+        .page-number {
+            text-align: center;
+            font-size: 10pt;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        /* Confidentialité */
+        .confidentiality-notice {
+            margin: 15px 0;
+            padding: 10px;
+            border: 2px solid #000;
+            text-align: center;
+            font-weight: bold;
+            font-size: 11pt;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="document-container">
+        <!-- En-tête du document -->
+        <div class="document-header">
+            <div class="document-title">Rapport de Sondage</div>
+            <div class="document-subtitle">{{ survey.title }}</div>
+            <div class="document-date">
+                Document généré le {{ stats.export_date|date:"d/m/Y à H:i" }}
+            </div>
+        </div>
+
+        <!-- Notice de confidentialité -->
+        <div class="confidentiality-notice">
+            Document Confidentiel - Usage Interne Uniquement
+        </div>
+
+        <!-- Section des informations générales -->
+        <div class="info-section">
+            <div class="section-title">I. Informations Générales</div>
+            
+            <table>
+                <tr>
+                    <th style="width: 40%;">Élément</th>
+                    <th style="width: 60%;">Détail</th>
+                </tr>
+                <tr>
+                    <td>Titre du sondage</td>
+                    <td>{{ survey.title }}</td>
+                </tr>
+                <tr>
+                    <td>Date de création</td>
+                    <td>{{ survey.created_at|date:"d/m/Y à H:i" }}</td>
+                </tr>
+                <tr>
+                    <td>Statut</td>
+                    <td>{% if survey.is_active %}Actif{% else %}Fermé{% endif %}</td>
+                </tr>
+                <tr>
+                    <td>Nombre total de réponses</td>
+                    <td>{{ stats.total_responses }}</td>
+                </tr>
+                <tr>
+                    <td>Réponses dans ce rapport</td>
+                    <td>{{ stats.exported_responses }}</td>
+                </tr>
+                <tr>
+                    <td>Nombre de questions</td>
+                    <td>{{ stats.total_questions }}</td>
+                </tr>
+            </table>
+
+            {% if survey.description %}
+            <div class="survey-description">
+                <strong>Description du sondage :</strong>
+                <p>{{ survey.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Section des réponses détaillées -->
+        <div class="responses-section">
+            <div class="section-title">II. Réponses Détaillées</div>
+
+            {% for response in responses_data %}
+                <!-- Saut de page si nécessaire -->
+                {% if per_page > 0 and forloop.counter0 > 0 and forloop.counter0|divisibleby:per_page %}
+                    <div class="page-break"></div>
+                    <div class="document-header">
+                        <div class="document-title">Rapport de Sondage (Suite)</div>
+                        <div class="document-subtitle">{{ survey.title }}</div>
+                    </div>
+                    <div class="section-title">II. Réponses Détaillées (Suite)</div>
+                {% endif %}
+
+                <div class="response-block">
+                    <div class="response-header">
+                        <div class="response-number">Réponse n°{{ forloop.counter }}</div>
+                        <div class="participant-info">
+                            <strong>Participant :</strong> {{ response.participant }}
+                        </div>
+                        <div class="participant-info">
+                            <strong>Email :</strong> {{ response.email }}
+                        </div>
+                        <div class="participant-info">
+                            <strong>Date de soumission :</strong> {{ response.date|date:"d/m/Y à H:i" }}
+                        </div>
+                    </div>
+
+                    <!-- Tableau des questions et réponses -->
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">N°</th>
+                                <th style="width: 45%;">Question</th>
+                                <th style="width: 50%;">Réponse</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for answer in response.answers %}
+                            <tr>
+                                <td style="text-align: center;">{{ forloop.counter }}</td>
+                                <td>{{ answer.question }}</td>
+                                <td>{{ answer.answer|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% empty %}
+                <p style="text-align: center; font-style: italic; margin: 30px 0;">
+                    Aucune réponse enregistrée pour ce sondage.
+                </p>
+            {% endfor %}
+        </div>
+
+        <!-- Pied de page -->
+        <div class="document-footer">
+            <p><strong>Système de Gestion de Sondages</strong></p>
+            <p>Ce document a été généré automatiquement le {{ stats.export_date|date:"d/m/Y à H:i" }}</p>
+            <p>Ce rapport contient {{ stats.exported_responses }} réponse(s) sur un total de {{ stats.total_responses }}</p>
+            <p style="margin-top: 10px; font-size: 9pt;">
+                Les informations contenues dans ce document sont confidentielles et destinées exclusivement 
+                à un usage administratif interne. Toute divulgation, reproduction ou distribution 
+                non autorisée est strictement interdite.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

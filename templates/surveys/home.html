@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil - Sondages Pro{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="container">
+        <h1>
+            <i class="fas fa-poll me-3"></i>Bienvenue sur Sondages Pro
+        </h1>
+        <p>
+            Découvrez nos sondages en cours et partagez votre opinion
+        </p>
+    </div>
+</div>
+
+<div class="container">
+    {% if surveys %}
+        <div class="row">
+            {% for survey in surveys %}
+            <div class="col-md-6 mb-4">
+                <div class="survey-card">
+                    <h3 class="survey-title">{{ survey.title }}</h3>
+                    <p class="survey-description">{{ survey.description }}</p>
+                    
+                    <div class="survey-meta">
+                        <div class="survey-meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>{{ survey.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="survey-meta-item">
+                            <i class="fas fa-users"></i>
+                            <span>{{ survey.response_count }} réponse{{ survey.response_count|pluralize }}</span>
+                        </div>
+                        <span class="badge-custom badge-success">
+                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                            Ouvert
+                        </span>
+                    </div>
+                    
+                    <a href="{% url 'survey_detail' survey.id %}" class="btn-custom btn-primary-custom">
+                        <i class="fas fa-arrow-right"></i>
+                        Participer au Sondage
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h3>Aucun sondage disponible</h3>
+            <p>Il n'y a actuellement aucun sondage actif. Revenez plus tard !</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

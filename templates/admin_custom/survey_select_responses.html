@@ -1,0 +1,340 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block header_title %}Sélection des Réponses{% endblock %}
+
+{% block content %}
+<div class="content-wrapper" style="max-width: 1200px; margin: 0 auto;">
+    <div class="mb-4">
+        <a href="{% url 'admin_survey_export' survey.id %}" style="color: #64748b; text-decoration: none; font-weight: 500;">
+            <i class="fas fa-arrow-left me-2"></i>Retour aux options d'export
+        </a>
+    </div>
+
+    <div class="card" style="border: none; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); border-radius: 16px 16px 0 0; padding: 2rem;">
+            <h3 style="color: #fff; font-weight: 700; margin: 0;">
+                <i class="fas fa-check-square me-2"></i>
+                Sélection Manuelle des Réponses
+            </h3>
+            <p style="color: rgba(255,255,255,0.9); margin: 0.5rem 0 0 0;">{{ survey.title }}</p>
+        </div>
+        <div class="card-body p-4">
+            <!-- Barre d'actions en haut -->
+            <div class="d-flex justify-content-between align-items-center mb-4" style="background: #f8fafc; padding: 1rem; border-radius: 10px;">
+                <div>
+                    <span id="selectedCount" style="font-weight: 600; color: #1e293b; font-size: 1.1rem;">0</span>
+                    <span style="color: #64748b;"> réponse(s) sélectionnée(s)</span>
+                </div>
+                <div>
+                    <button onclick="selectAll()" class="btn btn-sm" style="background: #fff; border: 2px solid #3b82f6; color: #3b82f6; border-radius: 8px; padding: 0.5rem 1rem; margin-right: 0.5rem;">
+                        <i class="fas fa-check-double me-1"></i>Tout sélectionner
+                    </button>
+                    <button onclick="deselectAll()" class="btn btn-sm" style="background: #fff; border: 2px solid #64748b; color: #64748b; border-radius: 8px; padding: 0.5rem 1rem;">
+                        <i class="fas fa-times me-1"></i>Tout désélectionner
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barre de recherche et filtres -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher par nom ou email..." 
+                           style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;"
+                           onkeyup="filterResponses()">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <select id="filterDate" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;" onchange="filterResponses()">
+                        <option value="all">Toutes les dates</option>
+                        <option value="today">Aujourd'hui</option>
+                        <option value="last_7_days">7 derniers jours</option>
+                        <option value="last_30_days">30 derniers jours</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <select id="sortOrder" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;" onchange="sortResponses()">
+                        <option value="date_desc">Date (récente → ancienne)</option>
+                        <option value="date_asc">Date (ancienne → récente)</option>
+                        <option value="name_asc">Nom (A → Z)</option>
+                        <option value="name_desc">Nom (Z → A)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Liste des réponses avec checkboxes -->
+            <div id="responsesList">
+                {% for response in responses %}
+                <div class="response-item" 
+                     data-name="{{ response.participant_name|lower }}"
+                     data-email="{{ response.participant_email|lower }}"
+                     data-date="{{ response.submitted_at|date:'Y-m-d' }}"
+                     data-timestamp="{{ response.submitted_at.timestamp }}"
+                     style="background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; transition: all 0.2s;">
+                    <div class="d-flex align-items-center">
+                        <div style="flex: 0 0 auto; margin-right: 1rem;">
+                            <input type="checkbox" class="response-checkbox form-check-input" 
+                                   value="{{ response.id }}" 
+                                   onchange="updateSelectedCount()"
+                                   style="width: 24px; height: 24px; cursor: pointer;">
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div style="font-weight: 600; color: #1e293b; margin-bottom: 0.25rem;">
+                                        <i class="fas fa-user me-2" style="color: #3b82f6;"></i>
+                                        {{ response.participant_name|default:"Anonyme" }}
+                                    </div>
+                                    <div style="color: #64748b; font-size: 0.9rem;">
+                                        <i class="fas fa-envelope me-2"></i>
+                                        {{ response.participant_email }}
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="color: #64748b; font-size: 0.875rem;">
+                                        <i class="far fa-calendar me-1"></i>
+                                        {{ response.submitted_at|date:"d/m/Y" }}
+                                    </div>
+                                    <div style="color: #94a3b8; font-size: 0.8rem;">
+                                        <i class="far fa-clock me-1"></i>
+                                        {{ response.submitted_at|date:"H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 3rem; color: #64748b;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p>Aucune réponse disponible pour ce sondage.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Message si aucun résultat après filtrage -->
+            <div id="noResults" style="display: none; text-align: center; padding: 3rem; color: #64748b;">
+                <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>Aucune réponse ne correspond aux critères de recherche.</p>
+            </div>
+
+            <!-- Options d'export -->
+            <div style="background: #f8fafc; padding: 1.5rem; border-radius: 10px; margin-top: 2rem;">
+                <h5 style="color: #1e293b; font-weight: 600; margin-bottom: 1rem;">
+                    <i class="fas fa-cog me-2" style="color: #3b82f6;"></i>
+                    Options d'Export
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #1e293b;">Format d'export</label>
+                        <select id="exportFormat" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;">
+                            <option value="html">Document HTML (style administratif)</option>
+                            <option value="csv">Fichier CSV Excel</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: #1e293b;">Réponses par page (HTML uniquement)</label>
+                        <select id="perPage" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;">
+                            <option value="10">10 réponses par page</option>
+                            <option value="25">25 réponses par page</option>
+                            <option value="50">50 réponses par page</option>
+                            <option value="100">100 réponses par page</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="d-grid gap-2 mt-4">
+                <button onclick="exportSelected()" id="exportBtn" class="btn btn-lg" 
+                        style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); border: none; color: #fff; border-radius: 10px; padding: 1rem; font-weight: 600;"
+                        disabled>
+                    <i class="fas fa-download me-2"></i>
+                    Exporter les Réponses Sélectionnées
+                </button>
+                <button onclick="previewSelected()" id="previewBtn" class="btn btn-lg" 
+                        style="background: #fff; border: 2px solid #3b82f6; color: #3b82f6; border-radius: 10px; padding: 1rem; font-weight: 600;"
+                        disabled>
+                    <i class="fas fa-eye me-2"></i>
+                    Aperçu des Réponses Sélectionnées
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allResponses = [];
+let currentSort = 'date_desc';
+
+// Initialiser au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    // Récupérer toutes les réponses
+    const responseItems = document.querySelectorAll('.response-item');
+    allResponses = Array.from(responseItems);
+    updateSelectedCount();
+});
+
+function selectAll() {
+    const visibleCheckboxes = document.querySelectorAll('.response-item:not([style*="display: none"]) .response-checkbox');
+    visibleCheckboxes.forEach(cb => cb.checked = true);
+    updateSelectedCount();
+}
+
+function deselectAll() {
+    const checkboxes = document.querySelectorAll('.response-checkbox');
+    checkboxes.forEach(cb => cb.checked = false);
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const checked = document.querySelectorAll('.response-checkbox:checked');
+    const count = checked.length;
+    document.getElementById('selectedCount').textContent = count;
+    
+    // Activer/désactiver les boutons d'export
+    const exportBtn = document.getElementById('exportBtn');
+    const previewBtn = document.getElementById('previewBtn');
+    const format = document.getElementById('exportFormat').value;
+    
+    if (count > 0) {
+        exportBtn.disabled = false;
+        exportBtn.style.opacity = '1';
+        exportBtn.style.cursor = 'pointer';
+        
+        if (format === 'html') {
+            previewBtn.disabled = false;
+            previewBtn.style.opacity = '1';
+            previewBtn.style.cursor = 'pointer';
+        }
+    } else {
+        exportBtn.disabled = true;
+        exportBtn.style.opacity = '0.5';
+        exportBtn.style.cursor = 'not-allowed';
+        previewBtn.disabled = true;
+        previewBtn.style.opacity = '0.5';
+        previewBtn.style.cursor = 'not-allowed';
+    }
+}
+
+function filterResponses() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const dateFilter = document.getElementById('filterDate').value;
+    const now = new Date();
+    let visibleCount = 0;
+    
+    allResponses.forEach(item => {
+        const name = item.dataset.name;
+        const email = item.dataset.email;
+        const dateStr = item.dataset.date;
+        const responseDate = new Date(dateStr);
+        
+        // Filtre de recherche
+        let matchesSearch = searchTerm === '' || name.includes(searchTerm) || email.includes(searchTerm);
+        
+        // Filtre de date
+        let matchesDate = true;
+        if (dateFilter === 'today') {
+            matchesDate = dateStr === now.toISOString().split('T')[0];
+        } else if (dateFilter === 'last_7_days') {
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            matchesDate = responseDate >= sevenDaysAgo;
+        } else if (dateFilter === 'last_30_days') {
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            matchesDate = responseDate >= thirtyDaysAgo;
+        }
+        
+        if (matchesSearch && matchesDate) {
+            item.style.display = 'block';
+            visibleCount++;
+        } else {
+            item.style.display = 'none';
+        }
+    });
+    
+    // Afficher/masquer le message "aucun résultat"
+    document.getElementById('noResults').style.display = visibleCount === 0 ? 'block' : 'none';
+}
+
+function sortResponses() {
+    const sortOrder = document.getElementById('sortOrder').value;
+    const container = document.getElementById('responsesList');
+    
+    allResponses.sort((a, b) => {
+        if (sortOrder === 'date_desc') {
+            return parseFloat(b.dataset.timestamp) - parseFloat(a.dataset.timestamp);
+        } else if (sortOrder === 'date_asc') {
+            return parseFloat(a.dataset.timestamp) - parseFloat(b.dataset.timestamp);
+        } else if (sortOrder === 'name_asc') {
+            return a.dataset.name.localeCompare(b.dataset.name);
+        } else if (sortOrder === 'name_desc') {
+            return b.dataset.name.localeCompare(a.dataset.name);
+        }
+        return 0;
+    });
+    
+    // Réorganiser les éléments dans le DOM
+    allResponses.forEach(item => container.appendChild(item));
+}
+
+// Gérer le changement de format
+document.getElementById('exportFormat').addEventListener('change', function() {
+    updateSelectedCount();
+});
+
+function getSelectedIds() {
+    const checked = document.querySelectorAll('.response-checkbox:checked');
+    return Array.from(checked).map(cb => cb.value);
+}
+
+function exportSelected() {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+        alert('Veuillez sélectionner au moins une réponse à exporter.');
+        return;
+    }
+    
+    const format = document.getElementById('exportFormat').value;
+    const perPage = document.getElementById('perPage').value;
+    
+    // Construire l'URL avec les IDs sélectionnés
+    const url = `{% url 'admin_survey_export_download' survey.id %}?format=${format}&per_page=${perPage}&selected_ids=${ids.join(',')}`;
+    window.location.href = url;
+}
+
+function previewSelected() {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+        alert('Veuillez sélectionner au moins une réponse à prévisualiser.');
+        return;
+    }
+    
+    const format = document.getElementById('exportFormat').value;
+    if (format === 'csv') {
+        alert('L\'aperçu n\'est pas disponible pour le format CSV.');
+        return;
+    }
+    
+    const perPage = document.getElementById('perPage').value;
+    
+    // Construire l'URL avec les IDs sélectionnés
+    const url = `{% url 'admin_survey_export_preview' survey.id %}?per_page=${perPage}&selected_ids=${ids.join(',')}`;
+    window.open(url, '_blank');
+}
+</script>
+
+<style>
+.response-item:hover {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.response-checkbox:checked ~ * {
+    opacity: 1;
+}
+
+.form-check-input:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+</style>
+{% endblock %}

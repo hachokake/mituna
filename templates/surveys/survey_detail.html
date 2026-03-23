@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ survey.title }} - Sondages Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom styling for survey forms */
+    .survey-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .survey-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* Beautiful custom checkboxes and radio buttons */
+    .custom-choice-container {
+        position: relative;
+        margin-bottom: 12px;
+    }
+    
+    .custom-choice-input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .custom-choice-label {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 15px;
+        font-weight: 500;
+        color: #334155;
+    }
+    
+    .custom-choice-label:hover {
+        background: #f1f5f9;
+        border-color: #3b82f6;
+        transform: translateX(4px);
+    }
+    
+    .custom-choice-input:checked + .custom-choice-label {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+        color: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .custom-choice-icon {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #cbd5e1;
+        border-radius: 50%;
+        margin-right: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .custom-choice-input[type="checkbox"] + .custom-choice-label .custom-choice-icon {
+        border-radius: 6px;
+    }
+    
+    .custom-choice-input:checked + .custom-choice-label .custom-choice-icon {
+        background: white;
+        border-color: white;
+    }
+    
+    .custom-choice-input:checked + .custom-choice-label .custom-choice-icon::after {
+        content: '✓';
+        color: #667eea;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    
+    /* Question badge */
+    .question-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    /* Text area styling */
+    .form-control {
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Rating stars */
+    .rating-container {
+        display: flex;
+        gap: 8px;
+        font-size: 32px;
+    }
+    
+    .rating-star {
+        color: #cbd5e1;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .rating-star:hover,
+    .rating-star.active {
+        color: #fbbf24;
+        transform: scale(1.2);
+    }
+    
+    /* Submit button */
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 16px 48px;
+        font-size: 18px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Info alert */
+    .info-box {
+        background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 16px 20px;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .survey-card .card-header,
+        .survey-card .card-body {
+            padding-left: 1.25rem !important;
+            padding-right: 1.25rem !important;
+        }
+        
+        .card-header h2 {
+            font-size: 1.5rem !important;
+        }
+        
+        .lead {
+            font-size: 1rem !important;
+        }
+        
+        .custom-choice-label {
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+        
+        .question-badge {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .rating-container {
+            font-size: 28px;
+            gap: 6px;
+        }
+        
+        .btn-submit {
+            padding: 14px 32px;
+            font-size: 16px;
+            width: 100%;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .survey-card .card-header h2 {
+            font-size: 1.25rem !important;
+        }
+        
+        .custom-choice-label {
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+        
+        .custom-choice-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        
+        .rating-container {
+            font-size: 24px;
+        }
+        
+        .btn-submit {
+            padding: 12px 24px;
+            font-size: 15px;
+        }
+        
+        .info-box {
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Survey Header -->
+        <div class="card survey-card mb-4">
+            <div class="card-header bg-white border-0 pt-4">
+                <h2 class="mb-0" style="color: #1e293b; font-weight: 700;">
+                    <i class="fas fa-clipboard-list me-2" style="color: #667eea;"></i>{{ survey.title }}
+                </h2>
+            </div>
+            <div class="card-body pb-4">
+                {% if survey.description %}
+                    <p class="lead mb-4" style="color: #64748b;">{{ survey.description }}</p>
+                {% endif %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center p-3 rounded" style="background: #f8fafc;">
+                            <i class="fas fa-question-circle me-3" style="font-size: 28px; color: #667eea;"></i>
+                            <div>
+                                <small class="text-muted d-block">Nombre de questions</small>
+                                <strong style="font-size: 20px; color: #1e293b;">{{ questions.count }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center p-3 rounded" style="background: #f8fafc;">
+                            <i class="fas fa-users me-3" style="font-size: 28px; color: #764ba2;"></i>
+                            <div>
+                                <small class="text-muted d-block">Participants</small>
+                                <strong style="font-size: 20px; color: #1e293b;">{{ survey.total_responses }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr style="margin: 1.5rem 0;">
+                
+                <div class="info-box">
+                    <i class="fas fa-info-circle me-2" style="color: #667eea;"></i>
+                    <strong style="color: #4c1d95;">Information:</strong> 
+                    <span style="color: #5b21b6;">Les champs marqués d'un astérisque (*) sont obligatoires. Vous ne pouvez répondre qu'une seule fois avec le même email.</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Survey Form -->
+        <form method="post" action="{% url 'survey_submit' survey.pk %}" id="surveyForm">
+            {% csrf_token %}
+            
+            <!-- Participant Information -->
+            <div class="card survey-card mb-4">
+                <div class="card-header bg-white border-0 pt-4">
+                    <h5 class="mb-0" style="color: #1e293b; font-weight: 600;">
+                        <i class="fas fa-user me-2" style="color: #667eea;"></i>Vos informations <span class="text-danger">*</span>
+                    </h5>
+                    <p class="text-muted small mb-0 mt-2">
+                        <i class="fas fa-shield-alt me-1" style="color: #667eea;"></i>
+                        Ces informations sont requises pour éviter les réponses multiples
+                    </p>
+                </div>
+                <div class="card-body pb-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="participant_name" class="form-label" style="font-weight: 600; color: #475569;">
+                                <i class="fas fa-user me-1" style="color: #667eea;"></i>Nom <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="participant_name" 
+                                   name="participant_name" placeholder="Votre nom complet" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="participant_email" class="form-label" style="font-weight: 600; color: #475569;">
+                                <i class="fas fa-envelope me-1" style="color: #764ba2;"></i>Email <span class="text-danger">*</span>
+                            </label>
+                            <input type="email" class="form-control" id="participant_email" 
+                                   name="participant_email" placeholder="votre@email.com" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Questions -->
+            {% for question in questions %}
+            <div class="card survey-card mb-4">
+                <div class="card-body p-4">
+                    <h5 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 18px;">
+                        <span class="question-badge me-2">Q{{ forloop.counter }}</span>
+                        {{ question.text }}
+                        {% if question.is_required %}
+                            <span class="text-danger" style="font-size: 20px;">*</span>
+                        {% endif %}
+                    </h5>
+                    
+                    <!-- Text Question -->
+                    {% if question.question_type == 'text' %}
+                        <textarea class="form-control" name="question_{{ question.id }}" 
+                                  rows="5" placeholder="Écrivez votre réponse ici..."
+                                  {% if question.is_required %}required{% endif %}></textarea>
+                    
+                    <!-- Single Choice Question -->
+                    {% elif question.question_type == 'single' %}
+                        <div class="choices-wrapper">
+                            {% for choice in question.choices.all %}
+                            <div class="custom-choice-container">
+                                <input class="custom-choice-input" type="radio" 
+                                       name="question_{{ question.id }}" 
+                                       id="choice_{{ choice.id }}" 
+                                       value="{{ choice.id }}"
+                                       {% if question.is_required %}required{% endif %}>
+                                <label class="custom-choice-label" for="choice_{{ choice.id }}">
+                                    <span class="custom-choice-icon"></span>
+                                    <span>{{ choice.text }}</span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    
+                    <!-- Multiple Choice Question -->
+                    {% elif question.question_type == 'multiple' %}
+                        <div class="choices-wrapper">
+                            {% for choice in question.choices.all %}
+                            <div class="custom-choice-container">
+                                <input class="custom-choice-input" type="checkbox" 
+                                       name="question_{{ question.id }}" 
+                                       id="choice_{{ choice.id }}" 
+                                       value="{{ choice.id }}">
+                                <label class="custom-choice-label" for="choice_{{ choice.id }}">
+                                    <span class="custom-choice-icon"></span>
+                                    <span>{{ choice.text }}</span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    
+                    <!-- Rating Question -->
+                    {% elif question.question_type == 'rating' %}
+                        <div class="rating-container mb-3">
+                            <input type="hidden" name="question_{{ question.id }}" 
+                                   class="rating-value" id="rating_{{ question.id }}"
+                                   {% if question.is_required %}required{% endif %}>
+                            <div class="stars-wrapper" data-question="{{ question.id }}">
+                                {% for i in "12345" %}
+                                    <i class="fas fa-star rating-star" data-rating="{{ forloop.counter }}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="text-muted small mt-2">
+                            <i class="fas fa-info-circle me-1" style="color: #667eea;"></i>
+                            <span style="color: #64748b;">Cliquez sur une étoile pour voter (1 = Mauvais, 5 = Excellent)</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Submit Button -->
+            <div class="card survey-card">
+                <div class="card-body text-center p-5">
+                    <button type="submit" class="btn btn-submit text-white">
+                        <i class="fas fa-paper-plane me-2"></i>Soumettre mes réponses
+                    </button>
+                    <div class="mt-4">
+                        <a href="{% url 'home' %}" class="text-muted" style="text-decoration: none; font-weight: 500;">
+                            <i class="fas fa-arrow-left me-1"></i>Retour à l'accueil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Rating stars functionality
+    document.querySelectorAll('.stars-wrapper').forEach(wrapper => {
+        const stars = wrapper.querySelectorAll('.rating-star');
+        const questionId = wrapper.dataset.question;
+        const hiddenInput = document.getElementById(`rating_${questionId}`);
+        
+        stars.forEach((star, index) => {
+            star.addEventListener('click', function() {
+                const rating = this.dataset.rating;
+                hiddenInput.value = rating;
+                
+                // Update star display
+                stars.forEach((s, i) => {
+                    if (i < rating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Hover effect
+            star.addEventListener('mouseenter', function() {
+                const rating = this.dataset.rating;
+                stars.forEach((s, i) => {
+                    if (i < rating) {
+                        s.style.color = '#fbbf24';
+                        s.style.transform = 'scale(1.2)';
+                    }
+                });
+            });
+        });
+        
+        wrapper.addEventListener('mouseleave', function() {
+            const currentRating = hiddenInput.value;
+            stars.forEach((s, i) => {
+                if (i < currentRating) {
+                    s.style.color = '#fbbf24';
+                } else {
+                    s.style.color = '#cbd5e1';
+                    s.style.transform = 'scale(1)';
+                }
+            });
+        });
+    });
+    
+    // Form validation and submission
+    document.getElementById('surveyForm').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('[type="submit"]');
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Envoi en cours...';
+        submitBtn.disabled = true;
+    });
+    
+    // Add smooth animations on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.survey-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}

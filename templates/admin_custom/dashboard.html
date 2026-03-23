@@ -1,0 +1,182 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}Tableau de Bord{% endblock %}
+{% block header_title %}Tableau de Bord{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card primary">
+            <div class="icon">
+                <i class="fas fa-poll"></i>
+            </div>
+            <div class="value">{{ total_surveys }}</div>
+            <div class="label">Sondages Créés</div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card success">
+            <div class="icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="value">{{ active_surveys }}</div>
+            <div class="label">Sondages Actifs</div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card warning">
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="value">{{ total_responses }}</div>
+            <div class="label">Réponses Totales</div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card purple">
+            <div class="icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <div class="value">{{ total_questions }}</div>
+            <div class="label">Questions Créées</div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Button -->
+<div class="mb-4">
+    <a href="{% url 'admin_survey_create' %}" class="btn-custom btn-primary-custom">
+        <i class="fas fa-plus"></i>
+        Créer un Nouveau Sondage
+    </a>
+</div>
+
+<!-- Surveys Table -->
+<div class="custom-table">
+    <table>
+        <thead>
+            <tr>
+                <th>Sondage</th>
+                <th>Statut</th>
+                <th>Questions</th>
+                <th>Réponses</th>
+                <th>Date de Création</th>
+                <th style="text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if surveys %}
+                {% for survey in surveys %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600; color: #1e293b; margin-bottom: 0.25rem;">
+                            {{ survey.title }}
+                        </div>
+                        <div style="font-size: 0.75rem; color: #64748b;">
+                            {{ survey.description|truncatewords:10 }}
+                        </div>
+                    </td>
+                    <td>
+                        {% if survey.is_active %}
+                            <span class="badge-custom badge-success">
+                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                                Actif
+                            </span>
+                        {% else %}
+                            <span class="badge-custom badge-danger">
+                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                                Inactif
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span style="font-weight: 600; color: #8b5cf6;">
+                            <i class="fas fa-question"></i>
+                            {{ survey.question_count }}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-weight: 600; color: #3b82f6;">
+                            <i class="fas fa-users"></i>
+                            {{ survey.response_count }}
+                        </span>
+                    </td>
+                    <td style="color: #64748b; font-size: 0.875rem;">
+                        {{ survey.created_at|date:"d/m/Y à H:i" }}
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                            <a href="{% url 'admin_survey_results' survey.id %}" 
+                               class="btn btn-sm btn-outline-primary"
+                               style="border-radius: 8px;"
+                               title="Voir les résultats">
+                                <i class="fas fa-chart-bar"></i>
+                            </a>
+                            <a href="{% url 'admin_survey_edit' survey.id %}" 
+                               class="btn btn-sm btn-outline-secondary"
+                               style="border-radius: 8px;"
+                               title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'admin_survey_delete' survey.id %}" 
+                               class="btn btn-sm btn-outline-danger"
+                               style="border-radius: 8px;"
+                               title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 3rem; color: #64748b;">
+                        <i class="fas fa-inbox fa-3x mb-3" style="display: block; opacity: 0.3;"></i>
+                        Aucun sondage créé pour le moment.
+                        <br>
+                        <a href="{% url 'admin_survey_create' %}" class="btn-custom btn-primary-custom mt-3">
+                            Créer votre premier sondage
+                        </a>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Recent Responses -->
+{% if recent_responses %}
+<div class="mt-5">
+    <h3 style="font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem;">
+        <i class="fas fa-clock"></i> Réponses Récentes
+    </h3>
+    
+    <div class="custom-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sondage</th>
+                    <th>Participant</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for response in recent_responses %}
+                <tr>
+                    <td style="font-weight: 600;">{{ response.survey.title }}</td>
+                    <td>{{ response.participant|default:"Anonyme" }}</td>
+                    <td style="color: #64748b; font-size: 0.875rem;">
+                        {{ response.submitted_at|date:"d/m/Y à H:i" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

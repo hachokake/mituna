@@ -1,0 +1,52 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}Supprimer le Sondage{% endblock %}
+{% block header_title %}Supprimer le Sondage{% endblock %}
+
+{% block content %}
+<div class="custom-table" style="max-width: 600px; margin: 0 auto;">
+    <div style="padding: 2rem; text-align: center;">
+        <div style="width: 80px; height: 80px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #ef4444;"></i>
+        </div>
+        
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem;">
+            Confirmer la Suppression
+        </h2>
+        
+        <p style="color: #64748b; margin-bottom: 1.5rem;">
+            Êtes-vous sûr de vouloir supprimer le sondage :
+        </p>
+        
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 2px solid #e2e8f0;">
+            <h3 style="font-size: 1.125rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
+                {{ survey.title }}
+            </h3>
+            <p style="color: #64748b; margin: 0; font-size: 0.875rem;">
+                {{ survey.description|truncatewords:20 }}
+            </p>
+        </div>
+        
+        <div style="background: #fee2e2; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+            <p style="color: #991b1b; margin: 0; font-weight: 600; font-size: 0.875rem;">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                Cette action est irréversible ! Toutes les questions et réponses seront également supprimées.
+            </p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-lg" style="border-radius: 12px;">
+                    <i class="fas fa-times me-2"></i>
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-danger btn-lg" style="border-radius: 12px;">
+                    <i class="fas fa-trash me-2"></i>
+                    Supprimer Définitivement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

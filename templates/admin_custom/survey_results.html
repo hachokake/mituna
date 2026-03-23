@@ -1,0 +1,218 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}Résultats - {{ survey.title }}{% endblock %}
+{% block header_title %}Résultats du Sondage{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-header {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: #fff;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+    }
+    
+    .result-header h2 {
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+    
+    .result-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+    
+    .question-result {
+        background: #fff;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .question-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .question-number {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: #fff;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    
+    .progress-bar-container {
+        margin-bottom: 1rem;
+    }
+    
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .progress-label-text {
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .progress-label-value {
+        font-weight: 700;
+        color: #3b82f6;
+    }
+    
+    .progress {
+        height: 30px;
+        border-radius: 10px;
+        background: #f1f5f9;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        padding: 0 1rem;
+        font-weight: 700;
+        font-size: 0.875rem;
+    }
+    
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-radius: 12px;
+    }
+    
+    .rating-stars {
+        font-size: 2rem;
+        color: #f59e0b;
+    }
+    
+    .rating-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #92400e;
+    }
+    
+    .text-answer-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .text-answer-item {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid #3b82f6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-header">
+    <h2>
+        <i class="fas fa-chart-bar me-3"></i>
+        {{ survey.title }}
+    </h2>
+    <p>
+        <i class="fas fa-users me-2"></i>
+        {{ total_responses }} réponse{{ total_responses|pluralize }} enregistrée{{ total_responses|pluralize }}
+    </p>
+</div>
+
+<div class="mb-4">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary" style="border-radius: 12px;">
+        <i class="fas fa-arrow-left me-2"></i>
+        Retour au Tableau de Bord
+    </a>
+</div>
+
+{% if total_responses > 0 %}
+    {% for item in questions_stats %}
+    <div class="question-result">
+        <div class="question-title">
+            <div class="question-number">{{ forloop.counter }}</div>
+            <span>{{ item.question.text }}</span>
+        </div>
+        
+        {% if item.choices_data %}
+            <!-- Questions à Choix -->
+            {% for choice in item.choices_data %}
+            <div class="progress-bar-container">
+                <div class="progress-label">
+                    <span class="progress-label-text">{{ choice.text }}</span>
+                    <span class="progress-label-value">{{ choice.count }} vote{{ choice.count|pluralize }} ({{ choice.percentage }}%)</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" 
+                         role="progressbar" 
+                         style="width: {{ choice.percentage }}%"
+                         aria-valuenow="{{ choice.percentage }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        {{ choice.percentage }}%
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+        {% elif item.avg_rating is not None %}
+            <!-- Question Notation -->
+            <div class="rating-display">
+                <div class="rating-stars">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= item.avg_rating %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div>
+                    <div class="rating-value">{{ item.avg_rating }}/5</div>
+                    <div style="color: #64748b; font-size: 0.875rem;">{{ item.total_ratings }} notation{{ item.total_ratings|pluralize }}</div>
+                </div>
+            </div>
+            
+        {% elif item.text_answers %}
+            <!-- Question Texte -->
+            <ul class="text-answer-list">
+                {% for answer in item.text_answers %}
+                <li class="text-answer-item">
+                    <i class="fas fa-comment-alt me-2" style="color: #3b82f6;"></i>
+                    {{ answer }}
+                </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="custom-table">
+        <div style="text-align: center; padding: 4rem; color: #64748b;">
+            <i class="fas fa-inbox fa-4x mb-3" style="display: block; opacity: 0.3;"></i>
+            <h3>Aucune réponse pour le moment</h3>
+            <p>Les résultats s'afficheront dès que des utilisateurs répondront au sondage.</p>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
