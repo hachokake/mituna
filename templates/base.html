@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sondages Pro{% endblock %}</title>
+    <title>{% block title %}Mituna - La Voix de Vos Questions{% endblock %}</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -228,11 +228,332 @@
         }
         
         .footer {
-            background: #1e293b;
-            color: #94a3b8;
-            padding: 2rem 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+            padding: 0;
             margin-top: 4rem;
-            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+        }
+        
+        .footer-content {
+            padding: 4rem 0 2rem;
+        }
+        
+        .footer-brand {
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-brand h3 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .footer-brand i {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .footer-brand p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-section h4 {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+        
+        .footer-section h4::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 2px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .footer-links a:hover {
+            color: #3b82f6;
+            transform: translateX(5px);
+        }
+        
+        .footer-links a i {
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+        
+        .footer-contact {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-contact li {
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+        
+        .footer-contact li i {
+            color: #3b82f6;
+            font-size: 1.1rem;
+            margin-top: 0.125rem;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .social-link {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: #fff;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            border-color: transparent;
+        }
+        
+        .social-link.facebook:hover {
+            background: #1877f2;
+        }
+        
+        .social-link.twitter:hover {
+            background: #1da1f2;
+        }
+        
+        .social-link.linkedin:hover {
+            background: #0077b5;
+        }
+        
+        .social-link.instagram:hover {
+            background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.75rem 0;
+            margin-top: 3rem;
+        }
+        
+        .footer-bottom-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .footer-copyright {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .footer-copyright i {
+            color: #ef4444;
+            animation: heartbeat 1.5s ease infinite;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+        }
+        
+        .footer-bottom-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-bottom-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-bottom-links a:hover {
+            color: #3b82f6;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .newsletter-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .newsletter-input::placeholder {
+            color: #64748b;
+        }
+        
+        .newsletter-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .newsletter-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .newsletter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Responsive Footer */
+        @media (max-width: 992px) {
+            .footer-section {
+                margin-bottom: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .footer-content {
+                padding: 3rem 0 1.5rem;
+            }
+            
+            .footer-brand h3 {
+                font-size: 1.5rem;
+            }
+            
+            .footer-section h4 {
+                font-size: 1rem;
+            }
+            
+            .footer-bottom-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+            
+            .footer-bottom-links {
+                justify-content: center;
+            }
+            
+            .social-links {
+                justify-content: center;
+            }
+            
+            .newsletter-form {
+                flex-direction: column;
+            }
+            
+            .newsletter-btn {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .footer-content {
+                padding: 2.5rem 0 1rem;
+            }
+            
+            .footer-brand h3 {
+                font-size: 1.35rem;
+            }
+            
+            .footer-section h4 {
+                font-size: 0.95rem;
+            }
+            
+            .footer-links a,
+            .footer-contact li,
+            .footer-brand p {
+                font-size: 0.875rem;
+            }
+            
+            .social-link {
+                width: 42px;
+                height: 42px;
+                font-size: 1.1rem;
+            }
         }
         
         .question-card {
@@ -507,8 +828,8 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
-                <i class="fas fa-poll"></i>
-                <span>Sondages Pro</span>
+                <i class="fas fa-comments"></i>
+                <span>Mituna</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -538,8 +859,110 @@
     </div>
 
     <footer class="footer">
-        <div class="container">
-            <p>&copy; 2024 Sondages Pro. Tous droits réservés.</p>
+        <div class="footer-content">
+            <div class="container">
+                <div class="row">
+                    <!-- Colonne À propos -->
+                    <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                        <div class="footer-brand">
+                            <h3>
+                                <i class="fas fa-comments"></i>
+                                Mituna
+                            </h3>
+                            <p>
+                                <strong>Mituna</strong>, qui signifie "question" en lingala, est votre plateforme 
+                                d'excellence pour créer et gérer des sondages professionnels. Née en RDC, 
+                                notre solution moderne et intuitive transforme chaque question en opportunité 
+                                de compréhension.
+                            </p>
+                            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 10px; border-left: 3px solid #3b82f6;">
+                                <p style="margin: 0; font-size: 0.9rem; color: #94a3b8;">
+                                    <i class="fas fa-quote-left" style="color: #3b82f6; margin-right: 0.5rem;"></i>
+                                    <em>Donnez une voix à votre communauté</em>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Colonne Fonctionnalités -->
+                    <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                        <div class="footer-section">
+                            <h4>Plateforme</h4>
+                            <ul class="footer-links">
+                                <li>
+                                    <a href="{% url 'home' %}">
+                                        <i class="fas fa-home"></i>
+                                        Accueil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'home' %}">
+                                        <i class="fas fa-poll"></i>
+                                        Sondages actifs
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'admin_login' %}">
+                                        <i class="fas fa-user-shield"></i>
+                                        Espace admin
+                                    </a>
+                                </li>
+                            </ul>
+                            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 10px;">
+                                <p style="margin: 0; font-size: 0.85rem; color: #94a3b8;">
+                                    <i class="fas fa-shield-alt" style="color: #10b981; margin-right: 0.5rem;"></i>
+                                    Plateforme sécurisée et fiable
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Colonne Avantages -->
+                    <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                        <div class="footer-section">
+                            <h4>Pourquoi Mituna ?</h4>
+                            <ul class="footer-links" style="list-style: none; padding-left: 0;">
+                                <li style="margin-bottom: 1rem; padding-left: 0;">
+                                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                        <i class="fas fa-check-circle" style="color: #10b981; margin-top: 0.25rem;"></i>
+                                        <span style="color: #94a3b8; font-size: 0.9rem;">Interface moderne et intuitive</span>
+                                    </div>
+                                </li>
+                                <li style="margin-bottom: 1rem; padding-left: 0;">
+                                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                        <i class="fas fa-check-circle" style="color: #10b981; margin-top: 0.25rem;"></i>
+                                        <span style="color: #94a3b8; font-size: 0.9rem;">Résultats en temps réel</span>
+                                    </div>
+                                </li>
+                                <li style="margin-bottom: 1rem; padding-left: 0;">
+                                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                        <i class="fas fa-check-circle" style="color: #10b981; margin-top: 0.25rem;"></i>
+                                        <span style="color: #94a3b8; font-size: 0.9rem;">Export professionnel des données</span>
+                                    </div>
+                                </li>
+                                <li style="margin-bottom: 0; padding-left: 0;">
+                                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                        <i class="fas fa-check-circle" style="color: #10b981; margin-top: 0.25rem;"></i>
+                                        <span style="color: #94a3b8; font-size: 0.9rem;">100% Made in RDC 🇨🇩</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom-content" style="justify-content: center;">
+                    <p class="footer-copyright" style="margin: 0;">
+                        &copy; 2026 <strong>Mituna</strong> - Plateforme de Sondages Professionnels. Fait avec <i class="fas fa-heart" style="color: #ef4444;"></i> en République Démocratique du Congo. Tous droits réservés.
+                    </p>
+                </div>
+            </div>
         </div>
     </footer>
 

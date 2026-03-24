@@ -1,15 +1,21 @@
 {% extends 'base.html' %}
 
-{% block title %}Accueil - Sondages Pro{% endblock %}
+{% block title %}Accueil - Mituna{% endblock %}
 
 {% block content %}
 <div class="hero">
     <div class="container">
         <h1>
-            <i class="fas fa-poll me-3"></i>Bienvenue sur Sondages Pro
+            <i class="fas fa-comments me-3"></i>Bienvenue sur Mituna
         </h1>
-        <p>
-            Découvrez nos sondages en cours et partagez votre opinion
+        <p class="lead" style="font-size: 1.25rem; font-weight: 500; max-width: 800px; margin: 0 auto 1rem;">
+            <strong>Mituna</strong> - Votre Question, Notre Mission
+        </p>
+        <p style="max-width: 900px; margin: 0 auto; line-height: 1.8;">
+            Dans la langue lingala, <strong>"Mituna"</strong> signifie "questions". 
+            Nous croyons que chaque question mérite une réponse, chaque voix mérite d'être entendue. 
+            Notre plateforme 100% congolaise vous invite à participer aux sondages et à partager 
+            vos opinions qui comptent. Faites-vous entendre, votre avis transforme les décisions.
         </p>
         {% if surveys_count is not None %}
         <p style="font-size: 0.875rem; opacity: 0.85; margin-top: 0.5rem;">
@@ -32,10 +38,6 @@
                         <div class="survey-meta-item">
                             <i class="fas fa-calendar"></i>
                             <span>{{ survey.created_at|date:"d/m/Y" }}</span>
-                        </div>
-                        <div class="survey-meta-item">
-                            <i class="fas fa-users"></i>
-                            <span>{{ survey.response_count }} réponse{{ survey.response_count|pluralize }}</span>
                         </div>
                         <span class="badge-custom badge-success">
                             <i class="fas fa-circle" style="font-size: 0.5rem;"></i>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ survey.title }} - Sondages Pro{% endblock %}
+{% block title %}{{ survey.title }} - Mituna{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -248,15 +248,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-center p-3 rounded" style="background: #f8fafc;">
-                            <i class="fas fa-users me-3" style="font-size: 28px; color: #764ba2;"></i>
-                            <div>
-                                <small class="text-muted d-block">Participants</small>
-                                <strong style="font-size: 20px; color: #1e293b;">{{ survey.total_responses }}</strong>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
                 <hr style="margin: 1.5rem 0;">
@@ -264,7 +255,7 @@
                 <div class="info-box">
                     <i class="fas fa-info-circle me-2" style="color: #667eea;"></i>
                     <strong style="color: #4c1d95;">Information:</strong> 
-                    <span style="color: #5b21b6;">Les champs marqués d'un astérisque (*) sont obligatoires. Vous ne pouvez répondre qu'une seule fois avec le même email.</span>
+                    <span style="color: #5b21b6;">Les champs marqués d'un astérisque (*) sont obligatoires. Vous ne pouvez répondre qu'une seule fois avec le même nom et prénom.</span>
                 </div>
             </div>
         </div>
@@ -288,17 +279,30 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="participant_name" class="form-label" style="font-weight: 600; color: #475569;">
-                                <i class="fas fa-user me-1" style="color: #667eea;"></i>Nom <span class="text-danger">*</span>
+                                <i class="fas fa-user me-1" style="color: #667eea;"></i>Nom & Prénom <span class="text-danger">*</span>
                             </label>
                             <input type="text" class="form-control" id="participant_name" 
-                                   name="participant_name" placeholder="Votre nom complet" required>
+                                   name="participant_name" 
+                                   placeholder="Exemple : José Moutou" 
+                                   required
+                                   pattern="[A-Za-zÀ-ÿ\-\'\s]{2,}\s+[A-Za-zÀ-ÿ\-\'\s]{2,}"
+                                   title="Veuillez entrer votre nom et prénom réels (minimum 2 mots, chacun de 2 lettres minimum)">
+                            <div class="form-text" style="color: #64748b; font-size: 0.875rem;">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Veuillez entrer votre nom et prénom réels (ex : José Moutou)
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="participant_email" class="form-label" style="font-weight: 600; color: #475569;">
-                                <i class="fas fa-envelope me-1" style="color: #764ba2;"></i>Email <span class="text-danger">*</span>
+                                <i class="fas fa-envelope me-1" style="color: #764ba2;"></i>Email <span class="text-muted small">(facultatif)</span>
                             </label>
                             <input type="email" class="form-control" id="participant_email" 
-                                   name="participant_email" placeholder="votre@email.com" required>
+                                   name="participant_email" 
+                                   placeholder="jose.moutou@example.com">
+                            <div class="form-text" style="color: #64748b; font-size: 0.875rem;">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Email facultatif, mais doit être valide si fourni
+                            </div>
                         </div>
                     </div>
                 </div>

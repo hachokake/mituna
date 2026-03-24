@@ -288,6 +288,6 @@ class AnswerAdmin(admin.ModelAdmin):
 
 
 # Personnalisation du site admin
-admin.site.site_header = "🎯 Administration Sondages Pro"
-admin.site.site_title = "Sondages Pro Admin"
+admin.site.site_header = "🎯 Administration Mituna"
+admin.site.site_title = "Mituna Admin"
 admin.site.index_title = "Tableau de Bord"

@@ -25,3 +25,13 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# ==============================================================================
+# HANDLERS D'ERREURS PERSONNALISÉS
+# ==============================================================================
+# Ces handlers remplacent les pages d'erreur Django par défaut
+# avec des pages professionnelles et conviviales
+
+handler404 = 'surveys.error_handlers.custom_404_handler'
+handler403 = 'surveys.error_handlers.custom_403_handler'
+handler500 = 'surveys.error_handlers.custom_500_handler'

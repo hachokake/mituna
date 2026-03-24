@@ -3,6 +3,13 @@ from surveys.models import Survey, Question, Response
 
 register = template.Library()
 
+@register.filter
+def get_item(dictionary, key):
+    """Filtre pour récupérer un élément d'un dictionnaire par sa clé"""
+    if dictionary is None:
+        return None
+    return dictionary.get(key)
+
 @register.simple_tag
 def total_surveys():
     """Retourne le nombre total de sondages"""

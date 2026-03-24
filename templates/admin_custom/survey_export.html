@@ -152,11 +152,12 @@
 
             <div class="mb-4">
                 <label class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.75rem;">
+                    <i class="fas fa-file-code me-2" style="color: #10b981;"></i>
                     Format d'export
                 </label>
                 <select id="formatSelect" class="form-select" style="border-radius: 10px; padding: 0.75rem; border: 2px solid #e2e8f0;">
                     <option value="html">Document HTML (style administratif)</option>
-                    <option value="csv">Fichier CSV Excel (recommandé pour +500 réponses)</option>
+                    <option value="csv" {% if total_responses > 500 %}selected{% endif %}>Fichier CSV Excel (recommandé pour +500 réponses)</option>
                 </select>
                 <small style="color: #64748b; margin-top: 0.5rem; display: block;">
                     <i class="fas fa-info-circle me-1"></i>
@@ -166,13 +167,24 @@
 
             <!-- Avertissement pour gros volumes -->
             {% if total_responses > 500 %}
-            <div class="alert alert-warning" style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
-                <div style="color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">
+            <div class="alert" style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                <div style="color: #991b1b; font-weight: 700; margin-bottom: 0.75rem; font-size: 1rem;">
                     <i class="fas fa-exclamation-triangle me-2"></i>Gros Volume Détecté ({{ total_responses }} réponses)
                 </div>
+                <p style="color: #991b1b; margin: 0.5rem 0; line-height: 1.6;">
+                    ⚠️ <strong>IMPORTANT:</strong> Pour éviter les timeouts et problèmes de mémoire, l'export HTML est automatiquement<strong> limité à 500 réponses maximum</strong>.
+                </p>
+                <p style="color: #991b1b; margin: 0.5rem 0; line-height: 1.6;">
+                    ✅ <strong>Solution:</strong> Utilisez l'export <strong>CSV</strong> qui peut gérer jusqu'à <strong>10 000+ réponses</strong> sans problème et s'ouvre directement dans Excel.
+                </p>
+            </div>
+            {% elif total_responses > 200 %}
+            <div class="alert" style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                <div style="color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">
+                    <i class="fas fa-info-circle me-2"></i>Volume Modéré ({{ total_responses }} réponses)
+                </div>
                 <p style="color: #92400e; margin: 0;">
-                    Pour des performances optimales, nous recommandons l'export <strong>CSV</strong> pour les sondages avec plus de 500 réponses.
-                    Le CSV s'ouvre directement dans Excel et gère mieux les gros volumes.
+                    Format CSV recommandé pour de meilleures performances avec ce volume de données.
                 </p>
             </div>
             {% endif %}
@@ -289,10 +301,24 @@ function downloadDocument() {
     const params = getExportParams();
     if (!params) return;
     
-    // Afficher un message pour les gros volumes
     const totalResponses = {{ total_responses }};
-    if (totalResponses > 1000 && params.format === 'html') {
-        if (!confirm(`Attention: Vous allez télécharger ${totalResponses} réponses en HTML. Cela peut prendre du temps. Continuer?`)) {
+    let effectiveLimit = parseInt(params.limit) || totalResponses;
+    
+    // Si pas de limite (0), c'est toutes les réponses
+    if (effectiveLimit === 0) {
+        effectiveLimit = totalResponses;
+    }
+    
+    // Avertissement pour HTML avec plus de 500 réponses
+    if (effectiveLimit > 500 && params.format === 'html') {
+        alert(`⚠️ IMPORTANT:\n\nVous avez sélectionné ${effectiveLimit} réponses en format HTML.\n\nPour éviter les timeouts, le système basculera automatiquement vers le format CSV qui peut gérer jusqu'à 10 000+ réponses.\n\n✅ Le fichier CSV s'ouvrira directement dans Excel.`);
+        // Forcer le format CSV
+        params.format = 'csv';
+    }
+    
+    // Message pour très gros volumes
+    if (effectiveLimit > 2000 && params.format === 'csv') {
+        if (!confirm(`📊 Vous allez télécharger ${effectiveLimit} réponses.\n\nCela peut prendre quelques secondes selon votre connexion.\n\nContinuer?`)) {
             return;
         }
     }

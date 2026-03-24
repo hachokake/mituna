@@ -56,18 +56,22 @@
 </div>
 
 <!-- Surveys Table -->
+<div class="table-scroll-hint d-md-none">
+    <i class="fas fa-arrows-alt-h"></i> Glissez horizontalement pour voir toutes les colonnes
+</div>
 <div class="custom-table">
-    <table>
-        <thead>
-            <tr>
-                <th>Sondage</th>
-                <th>Statut</th>
-                <th>Questions</th>
-                <th>Réponses</th>
-                <th>Date de Création</th>
-                <th style="text-align: center;">Actions</th>
-            </tr>
-        </thead>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sondage</th>
+                    <th>Statut</th>
+                    <th>Questions</th>
+                    <th>Réponses</th>
+                    <th>Date de Création</th>
+                    <th style="text-align: center;">Actions</th>
+                </tr>
+            </thead>
         <tbody>
             {% if surveys %}
                 {% for survey in surveys %}
@@ -109,12 +113,24 @@
                         {{ survey.created_at|date:"d/m/Y à H:i" }}
                     </td>
                     <td style="text-align: center;">
-                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
                             <a href="{% url 'admin_survey_results' survey.id %}" 
                                class="btn btn-sm btn-outline-primary"
                                style="border-radius: 8px;"
                                title="Voir les résultats">
                                 <i class="fas fa-chart-bar"></i>
+                            </a>
+                            <a href="{% url 'admin_survey_participants' survey.id %}" 
+                               class="btn btn-sm"
+                               style="border-radius: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none;"
+                               title="Voir les participants">
+                                <i class="fas fa-users"></i>
+                            </a>
+                            <a href="{% url 'admin_survey_statistics' survey.id %}" 
+                               class="btn btn-sm"
+                               style="border-radius: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; border: none;"
+                               title="Rapport statistique professionnel">
+                                <i class="fas fa-file-chart-line"></i>
                             </a>
                             <a href="{% url 'admin_survey_edit' survey.id %}" 
                                class="btn btn-sm btn-outline-secondary"
@@ -122,10 +138,16 @@
                                title="Modifier">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            <a href="{% url 'admin_survey_toggle_status' survey.id %}" 
+                               class="btn btn-sm {% if survey.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+                               style="border-radius: 8px;"
+                               title="{% if survey.is_active %}Archiver (masquer sans perdre les données){% else %}Activer (rendre visible){% endif %}">
+                                <i class="fas {% if survey.is_active %}fa-archive{% else %}fa-check-circle{% endif %}"></i>
+                            </a>
                             <a href="{% url 'admin_survey_delete' survey.id %}" 
                                class="btn btn-sm btn-outline-danger"
                                style="border-radius: 8px;"
-                               title="Supprimer">
+                               title="Supprimer définitivement (PERTE DE DONNÉES)">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </div>
@@ -146,6 +168,7 @@
             {% endif %}
         </tbody>
     </table>
+    </div>
 </div>
 
 <!-- Recent Responses -->
@@ -155,10 +178,14 @@
         <i class="fas fa-clock"></i> Réponses Récentes
     </h3>
     
+    <div class="table-scroll-hint d-md-none">
+        <i class="fas fa-arrows-alt-h"></i> Glissez pour voir plus
+    </div>
     <div class="custom-table">
-        <table>
-            <thead>
-                <tr>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
                     <th>Sondage</th>
                     <th>Participant</th>
                     <th>Date</th>
@@ -168,14 +195,21 @@
                 {% for response in recent_responses %}
                 <tr>
                     <td style="font-weight: 600;">{{ response.survey.title }}</td>
-                    <td>{{ response.participant|default:"Anonyme" }}</td>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <i class="fas fa-user-circle me-2" style="color: #667eea;"></i>
+                            <span>{{ response.participant_name }}</span>
+                        </div>
+                    </td>
                     <td style="color: #64748b; font-size: 0.875rem;">
+                        <i class="fas fa-clock me-1"></i>
                         {{ response.submitted_at|date:"d/m/Y à H:i" }}
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 {% endif %}

@@ -51,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'surveys.middleware.AdminSetupMiddleware',
+    'surveys.error_handlers.GlobalErrorHandlerMiddleware',  # Gestion globale des erreurs
 ]
 
 ROOT_URLCONF = 'sondage_project.urls'
@@ -109,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'fr-fr'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Kinshasa'
 
 USE_I18N = True
 
@@ -139,3 +140,184 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 EXPORT_MAX_RESPONSES_PER_PAGE = 50  # Nombre de réponses par page dans les exports
 EXPORT_DEFAULT_LIMIT = 100  # Limite par défaut pour les exports
 EXPORT_MAX_LIMIT = 5000  # Limite maximale pour un export unique
+
+# ==============================================================================
+# LOGGING CONFIGURATION PROFESSIONNELLE
+# ==============================================================================
+
+import os
+
+# Créer le dossier logs s'il n'existe pas
+LOGS_DIR = BASE_DIR / 'logs'
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    
+    # Formatage des logs
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {module} {process:d} {thread:d} - {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'simple': {
+            'format': '[{levelname}] {asctime} - {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'detailed': {
+            'format': '''
+================================================================================
+[{levelname}] {asctime}
+Module: {module} | Function: {funcName} | Line: {lineno}
+Process: {process} | Thread: {thread}
+Message: {message}
+================================================================================
+''',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        }
+    },
+    
+    # Filtres
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    
+    # Handlers (où vont les logs)
+    'handlers': {
+        # Console en développement
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        
+        # Fichier pour toutes les erreurs
+        'file_errors': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'errors.log',
+            'maxBytes': 10485760,  # 10MB
+            'backupCount': 10,
+            'formatter': 'detailed',
+        },
+        
+        # Fichier pour les erreurs critiques uniquement
+        'file_critical': {
+            'level': 'CRITICAL',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'critical.log',
+            'maxBytes': 5242880,  # 5MB
+            'backupCount': 5,
+            'formatter': 'detailed',
+        },
+        
+        # Fichier pour les activités générales
+        'file_general': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'general.log',
+            'maxBytes': 10485760,  # 10MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        
+        # Fichier spécifique pour les erreurs de l'application surveys
+        'file_surveys': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'surveys.log',
+            'maxBytes': 10485760,  # 10MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        
+        # Email aux admins pour les erreurs critiques (production)
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        }
+    },
+    
+    # Loggers (qui log quoi)
+    'loggers': {
+        # Logger Django général
+        'django': {
+            'handlers': ['console', 'file_general', 'mail_admins'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        
+        # Logger pour les erreurs Django
+        'django.request': {
+            'handlers': ['file_errors', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        
+        # Logger pour les erreurs de sécurité
+        'django.security': {
+            'handlers': ['file_critical', 'mail_admins'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        
+        # Logger spécifique pour l'application surveys
+        'surveys': {
+            'handlers': ['console', 'file_surveys'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        
+        # Logger pour les erreurs de surveys
+        'surveys.errors': {
+            'handlers': ['file_errors', 'file_critical', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        
+        # Logger pour les opérations sensibles (exports, modifications...)
+        'surveys.operations': {
+            'handlers': ['file_surveys'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+    
+    # Logger racine (catch-all)
+    'root': {
+        'handlers': ['console', 'file_general'],
+        'level': 'WARNING',
+    },
+}
+
+# ==============================================================================
+# GESTION DES ERREURS PERSONNALISÉES
+# ==============================================================================
+
+# En production, ne jamais afficher les détails techniques
+# DEBUG doit être False en production
+if not DEBUG:
+    # Configurations de sécurité renforcées pour la production
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_HSTS_SECONDS = 31536000  # 1 an
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+

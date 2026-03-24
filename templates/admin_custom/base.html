@@ -2,8 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Administration{% endblock %} - Sondages Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>{% block title %}Administration{% endblock %} - Mituna</title>
     
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -21,10 +21,37 @@
             box-sizing: border-box;
         }
         
+        html {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        
         body {
             font-family: 'Inter', sans-serif;
             background: #f8fafc;
             color: #1e293b;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Fix pour les inputs sur mobile */
+        input,
+        textarea,
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            font-size: 16px !important; /* Empêche le zoom automatique iOS */
+            touch-action: manipulation;
+        }
+        
+        /* Assurer que les champs peuvent être tapés */
+        input:focus,
+        textarea:focus,
+        select:focus {
+            position: relative;
+            z-index: 10001 !important; /* Plus haut que tous les autres éléments */
+            outline: none;
         }
         
         /* Sidebar */
@@ -36,9 +63,10 @@
             height: 100vh;
             background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
             padding: 2rem 0;
-            z-index: 1000;
+            z-index: 950; /* Entre l'overlay (940) et les inputs focus (10001) */
             overflow-y: auto;
             transition: transform 0.3s ease;
+            -webkit-overflow-scrolling: touch;
         }
         
         /* Menu Hamburger */
@@ -51,6 +79,8 @@
             cursor: pointer;
             padding: 0.5rem;
             margin-right: 1rem;
+            z-index: 901; /* Juste au-dessus du header */
+            position: relative;
         }
         
         .menu-toggle:hover {
@@ -66,13 +96,15 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
+            z-index: 940; /* Plus bas que la sidebar et inputs */
             opacity: 0;
             transition: opacity 0.3s ease;
+            pointer-events: none;
         }
         
         .sidebar-overlay.active {
             opacity: 1;
+            pointer-events: auto;
         }
         
         .admin-sidebar .logo {
@@ -158,7 +190,7 @@
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 999;
+            z-index: 900; /* Réduit pour ne pas bloquer les inputs */
         }
         
         .admin-header h1 {
@@ -298,6 +330,37 @@
             border: 1px solid #e2e8f0;
         }
         
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+        
+        /* Custom scrollbar pour webkit */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        .table-scroll-hint {
+            display: none;
+        }
+        
         .custom-table table {
             width: 100%;
             margin: 0;
@@ -406,6 +469,8 @@
             /* Adapter le header */
             .admin-header {
                 padding: 1rem 1rem;
+                position: sticky;
+                z-index: 900;
             }
             
             .admin-header h1 {
@@ -426,6 +491,42 @@
             /* Adapter le contenu */
             .admin-content {
                 padding: 1rem;
+                position: relative;
+                z-index: 1; /* Contexte de stacking pour les formulaires */
+            }
+            
+            /* Styles spécifiques pour les formulaires sur mobile */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="tel"],
+            input[type="url"],
+            textarea,
+            select {
+                font-size: 16px !important;
+                padding: 0.875rem 1rem !important;
+                min-height: 48px;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            /* Assurer que les champs focused soient visibles */
+            input:focus,
+            textarea:focus,
+            select:focus {
+                position: relative;
+                z-index: 10001 !important;
+                transform: translateZ(0); /* Force hardware acceleration */
+                -webkit-transform: translateZ(0);
+            }
+            
+            /* Assurer que les containers de formulaires ne bloquent pas */
+            .form-group,
+            .mb-3,
+            .mb-4 {
+                position: relative;
+                z-index: auto;
             }
             
             /* Adapter les cartes */
@@ -438,10 +539,49 @@
             }
             
             /* Adapter les tableaux */
+            .custom-table {
+                border-radius: 12px;
+            }
+            
+            .table-responsive {
+                border-radius: 12px;
+            }
+            
+            .table-scroll-hint {
+                display: block;
+                text-align: center;
+                padding: 0.75rem;
+                background: #dbeafe;
+                color: #1e40af;
+                font-size: 0.8rem;
+                border-radius: 8px;
+                margin-bottom: 0.75rem;
+                font-weight: 500;
+            }
+            
+            .custom-table table {
+                min-width: 800px; /* Force le scroll horizontal */
+            }
+            
             .custom-table th,
             .custom-table td {
-                padding: 0.75rem 1rem;
-                font-size: 0.875rem;
+                padding: 0.75rem 0.75rem;
+                font-size: 0.8rem;
+            }
+            
+            /* Première colonne sticky pour garder le contexte */
+            .custom-table th:first-child,
+            .custom-table td:first-child {
+                position: sticky;
+                left: 0;
+                background: #fff;
+                z-index: 2;
+                box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            }
+            
+            .custom-table thead th:first-child {
+                background: #f8fafc;
+                z-index: 3;
             }
         }
         
@@ -456,6 +596,61 @@
             
             .stat-card .label {
                 font-size: 0.75rem;
+            }
+            
+            /* Tableaux sur très petits écrans */
+            .table-scroll-hint {
+                padding: 0.65rem;
+                font-size: 0.75rem;
+            }
+            
+            .custom-table table {
+                min-width: 750px;
+            }
+            
+            .custom-table th,
+            .custom-table td {
+                padding: 0.6rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            /* Réduire les badges */
+            .badge-custom {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.65rem;
+            }
+            
+            /* Actions plus compactes */
+            .btn-sm {
+                padding: 0.35rem 0.45rem;
+                font-size: 0.7rem;
+            }
+            
+            /* Styles critiques pour les petits écrans */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="tel"],
+            input[type="url"],
+            textarea,
+            select {
+                font-size: 16px !important;
+                padding: 1rem !important;
+                min-height: 50px !important;
+                width: 100%;
+                border-radius: 10px;
+            }
+            
+            textarea {
+                min-height: 100px !important;
+            }
+            
+            /* Assurer l'accessibilité des boutons */
+            button,
+            .btn {
+                min-height: 48px;
+                touch-action: manipulation;
             }
         }
     </style>

@@ -1,19 +1,32 @@
-# Plateforme de Sondages Professionnelle
+# 🌟 Mituna - La Voix de Vos Questions
 
-Une application Django moderne et élégante pour créer, gérer et analyser des sondages en ligne avec un design professionnel.
+**Mituna** (qui signifie "questions" en lingala) - Une plateforme de sondages moderne et professionnelle, fièrement développée en RDC 🇨🇩
+
+> *"Votre Question, Notre Mission"*
+
+Une application Django élégante pour créer, gérer et analyser des sondages en ligne. Mituna incarne notre volonté de donner une voix à chaque personne et de transformer chaque question en opportunité de compréhension.
 
 ## ✨ Fonctionnalités
 
 - 🎨 **Design Moderne et Responsive** - Interface utilisateur élégante avec Bootstrap 5
-- �️ **Interface d'Administration Personnalisée** - Panneau d'admin Django avec design professionnel
-- �📊 **Types de Questions Variés** 
+- 🖥️ **Interface d'Administration Personnalisée** - Panneau d'admin Django avec design professionnel
+- 📊 **Types de Questions Variés** 
   - Texte libre
   - Choix unique (radio)
   - Choix multiples (checkbox)
   - Évaluation par étoiles (1-5)
 - 📈 **Résultats en Temps Réel** - Visualisation instantanée des résultats avec graphiques
+- 📊 **Rapport Statistique Professionnel** - Module complet style document Word
+  - Dashboard interactif avec aperçu complet
+  - Statistiques détaillées (participants, fréquences, pourcentages)
+  - Graphiques professionnels (barres, circulaires, notations)
+  - Tableaux récapitulatifs structurés
+  - Conclusion automatique intelligente
+  - Export PDF haute qualité prêt à l'impression
+  - Aperçu avant téléchargement
 - 👥 **Gestion des Participants** - Suivi optionnel des informations des participants
 - 🔒 **Administration Complète** - Interface d'administration Django pour gérer les sondages
+- 📥 **Export de Données** - Export optimisé CSV/HTML pour jusqu'à 10 000+ réponses
 - 🌐 **Interface Multilingue** - Support du français
 - 📱 **Mobile-First** - Parfaitement adapté aux mobiles et tablettes
 
@@ -220,6 +233,14 @@ Avant de déployer en production :
 ### Answer (Réponse à une question)
 - Réponse à une question spécifique
 - Peut être : choix, texte, ou évaluation
+
+## 📚 Documentation Détaillée
+
+- **[RAPPORT_STATISTIQUE_GUIDE.md](RAPPORT_STATISTIQUE_GUIDE.md)** - Guide complet du module statistique professionnel
+- **[ADMIN_README.md](ADMIN_README.md)** - Documentation de l'interface d'administration
+- **[PERFORMANCE_EXPORT.md](PERFORMANCE_EXPORT.md)** - Guide d'optimisation des exports (1500+ réponses)
+- **[ABOUT_MITUNA.md](ABOUT_MITUNA.md)** - Histoire et vision de la plateforme Mituna
+- **[GUIDE_VISUEL.md](GUIDE_VISUEL.md)** - Guide visuel d'utilisation
 
 ## 🤝 Support
 

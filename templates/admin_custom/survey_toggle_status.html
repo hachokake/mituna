@@ -1,0 +1,92 @@
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}{{ action|title }} le Sondage{% endblock %}
+{% block header_title %}{{ action|title }} le Sondage{% endblock %}
+
+{% block content %}
+<div class="custom-table" style="max-width: 600px; margin: 0 auto;">
+    <div style="padding: 2rem; text-align: center;">
+        {% if survey.is_active %}
+        <div style="width: 80px; height: 80px; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+            <i class="fas fa-archive" style="font-size: 2.5rem; color: #f59e0b;"></i>
+        </div>
+        
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem;">
+            Archiver le Sondage
+        </h2>
+        
+        <p style="color: #64748b; margin-bottom: 1.5rem;">
+            Le sondage sera masqué des utilisateurs mais <strong>toutes les données seront conservées</strong>.
+        </p>
+        {% else %}
+        <div style="width: 80px; height: 80px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+            <i class="fas fa-check-circle" style="font-size: 2.5rem; color: #10b981;"></i>
+        </div>
+        
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem;">
+            Activer le Sondage
+        </h2>
+        
+        <p style="color: #64748b; margin-bottom: 1.5rem;">
+            Le sondage sera de nouveau visible et accessible aux utilisateurs.
+        </p>
+        {% endif %}
+        
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 2px solid #e2e8f0;">
+            <h3 style="font-size: 1.125rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">
+                {{ survey.title }}
+            </h3>
+            <p style="color: #64748b; margin-bottom: 0.75rem; font-size: 0.875rem;">
+                {{ survey.description|truncatewords:20 }}
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; font-size: 0.875rem;">
+                <span style="color: #64748b;">
+                    <i class="fas fa-question-circle me-1"></i>
+                    {{ survey.questions.count }} question(s)
+                </span>
+                <span style="color: #64748b;">
+                    <i class="fas fa-users me-1"></i>
+                    {{ survey.responses.count }} réponse(s)
+                </span>
+            </div>
+        </div>
+        
+        {% if survey.is_active %}
+        <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+            <p style="color: #92400e; margin: 0; font-weight: 600; font-size: 0.875rem;">
+                <i class="fas fa-info-circle me-2"></i>
+                Le sondage sera masqué mais pourra être réactivé à tout moment. Aucune donnée ne sera perdue.
+            </p>
+        </div>
+        {% else %}
+        <div style="background: #d1fae5; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+            <p style="color: #065f46; margin: 0; font-weight: 600; font-size: 0.875rem;">
+                <i class="fas fa-info-circle me-2"></i>
+                Le sondage redeviendra accessible aux utilisateurs sur la page d'accueil.
+            </p>
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary btn-lg" style="border-radius: 12px;">
+                    <i class="fas fa-times me-2"></i>
+                    Annuler
+                </a>
+                {% if survey.is_active %}
+                <button type="submit" class="btn btn-warning btn-lg" style="border-radius: 12px; color: white;">
+                    <i class="fas fa-archive me-2"></i>
+                    Archiver le Sondage
+                </button>
+                {% else %}
+                <button type="submit" class="btn btn-success btn-lg" style="border-radius: 12px;">
+                    <i class="fas fa-check me-2"></i>
+                    Activer le Sondage
+                </button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
