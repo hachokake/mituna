@@ -25,7 +25,7 @@ def validate_full_name(value):
     words = normalized_name.split()
     if len(words) < 2:
         raise ValidationError(
-            "Veuillez entrer votre nom ET votre prénom (ex : José Moutou)."
+            "Veuillez entrer votre nom ET votre prénom (ex : mukendi jonathan)."
         )
     
     # Vérifier chaque mot
@@ -57,14 +57,14 @@ def validate_full_name(value):
         if word_lower in forbidden_words:
             raise ValidationError(
                 f"'{word}' n'est pas un nom valide. "
-                "Veuillez entrer votre nom et prénom réels (ex : José Moutou)."
+                "Veuillez entrer votre nom et prénom réels (ex : mukendi jonathan)."
             )
         
         # Vérifier les répétitions (ex: "Jean Jean")
         if words.count(word) > 1:
             raise ValidationError(
                 "Vous ne pouvez pas répéter le même mot. "
-                "Veuillez entrer votre nom et prénom réels (ex : José Moutou)."
+                "Veuillez entrer votre nom et prénom réels (ex : mukendi jonathan)."
             )
     
     return normalized_name
@@ -75,16 +75,23 @@ def normalize_full_name(value):
     Normalise un nom complet pour la comparaison anti-doublon:
     - Supprime les espaces multiples
     - Convertit en minuscules pour comparaison insensible à la casse
-    - Capitalise proprement chaque mot
+    - Capitalise proprement chaque mot pour l'affichage
+    
+    Retourne un tuple: (nom_pour_affichage, nom_pour_comparaison)
     """
     if not value:
-        return ""
+        return "", ""
     
     # Supprimer espaces multiples et normaliser
     normalized = ' '.join(value.strip().split())
     
-    # Capitaliser proprement chaque mot
-    return normalized.title()
+    # Version pour affichage: capitaliser proprement chaque mot
+    display_name = normalized.title()
+    
+    # Version pour comparaison: tout en minuscules
+    comparison_name = normalized.lower()
+    
+    return display_name, comparison_name
 
 
 def validate_optional_email(value):

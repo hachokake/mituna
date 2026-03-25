@@ -135,7 +135,8 @@ class Response(models.Model):
     )
     participant_email = models.EmailField(
         verbose_name="Email du participant",
-        default="anonyme@example.com"
+        blank=True,  # Facultatif
+        default=""   # Chaîne vide au lieu d'email générique
     )
     submitted_at = models.DateTimeField(auto_now_add=True, verbose_name="Soumis le")
     ip_address = models.GenericIPAddressField(
@@ -148,8 +149,8 @@ class Response(models.Model):
         ordering = ['-submitted_at']
         verbose_name = "Réponse"
         verbose_name_plural = "Réponses"
-        # Empêcher qu'un même email réponde plusieurs fois au même sondage
-        unique_together = [['survey', 'participant_email']]
+        # Note: La validation des doublons est gérée dans les vues (views.py)
+        # selon le paramètre allow_multiple_submissions de chaque sondage
     
     def __str__(self):
         return f"Réponse de {self.participant_name} à {self.survey.title}"

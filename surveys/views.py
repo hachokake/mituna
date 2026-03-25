@@ -117,7 +117,10 @@ def survey_submit(request, pk):
         # === VALIDATION STRICTE DU NOM ===
         try:
             # Valider et normaliser le nom complet
-            normalized_name = validate_full_name(participant_name)
+            validated_name = validate_full_name(participant_name)
+            # Capitaliser pour affichage (ex: mukendi jonathan → Mukendi Jonathan)
+            from .validators import normalize_full_name
+            display_name, comparison_name = normalize_full_name(validated_name)
         except ValidationError as e:
             messages.error(request, str(e))
             logger.warning(f"Validation nom échouée pour sondage {pk}: {participant_name}")
@@ -128,37 +131,57 @@ def survey_submit(request, pk):
         if participant_email:
             try:
                 validated_email = validate_optional_email(participant_email)
+                
+                # ⚠️ IMPORTANT : Si un email est fourni, vérifier qu'il est unique pour ce sondage
+                existing_email_response = Response.objects.filter(
+                    survey=survey,
+                    participant_email=validated_email
+                ).exclude(participant_email='').first()
+                
+                if existing_email_response:
+                    messages.error(
+                        request,
+                        f"L'adresse email '{validated_email}' a déjà été utilisée pour ce sondage. "
+                        "Veuillez utiliser une autre adresse email ou laisser le champ vide."
+                    )
+                    logger.warning(f"Email en double pour sondage {pk}: {validated_email}")
+                    return redirect('survey_detail', pk=pk)
+                    
             except ValidationError as e:
                 messages.error(request, str(e))
                 logger.warning(f"Validation email échouée pour sondage {pk}: {participant_email}")
                 return redirect('survey_detail', pk=pk)
         
-        # === VÉRIFICATION ANTI-DOUBLON ===
-        # Vérifier si une personne avec exactement le même nom (normalisé) a déjà répondu
-        # Comparaison insensible à la casse et aux espaces multiples
-        existing_response = Response.objects.filter(
-            survey=survey,
-            participant_name__iexact=normalized_name
-        ).first()
+        # === VÉRIFICATION ANTI-DOUBLON (si le sondage ne permet pas plusieurs soumissions) ===
+        if not survey.allow_multiple_submissions:
+            # Vérifier si une personne avec exactement le même nom a déjà répondu
+            # Comparaison INSENSIBLE à la casse (mukendi jonathan = Mukendi Jonathan)
+            existing_response = Response.objects.filter(
+                survey=survey,
+                participant_name__iexact=comparison_name
+            ).first()
+            
+            if existing_response:
+                messages.error(
+                    request, 
+                    f"Vous avez déjà répondu à ce sondage. "
+                    f"Une seule participation par personne est autorisée. "
+                    f"(Nom détecté: {display_name})"
+                )
+                logger.warning(f"Tentative de doublon pour sondage {pk}: {display_name} (comparaison: {comparison_name})")
+                return redirect('survey_detail', pk=pk)
+        else:
+            logger.info(f"Soumissions multiples autorisées pour sondage {pk}")
         
-        if existing_response:
-            messages.error(
-                request, 
-                f"Vous avez déjà répondu à ce sondage avec le nom \"{normalized_name}\". "
-                "Une seule participation par personne est autorisée."
-            )
-            logger.warning(f"Tentative de doublon pour sondage {pk}: {normalized_name}")
-            return redirect('survey_detail', pk=pk)
-        
-        # Créer une réponse avec le nom normalisé
+        # Créer une réponse avec le nom pour affichage (capitalisé)
         response = Response.objects.create(
             survey=survey,
-            participant_name=normalized_name,
+            participant_name=display_name,
             participant_email=validated_email or '',
             ip_address=get_client_ip(request)
         )
         
-        logger.info(f"Nouvelle réponse créée pour sondage {pk} par {normalized_name}")
+        logger.info(f"Nouvelle réponse créée pour sondage {pk} par {display_name}")
         
         # Traiter chaque question
         questions = survey.questions.all()
@@ -238,16 +261,18 @@ def survey_submit(request, pk):
         logger.info(f"Soumission réussie sondage {pk}: {answers_created} réponses enregistrées")
         operations_logger = logging.getLogger('surveys.operations')
         operations_logger.info(
-            f"SOUMISSION - Sondage: {survey.title} | Participant: {normalized_name} | "
+            f"SOUMISSION - Sondage: {survey.title} | Participant: {display_name} | "
             f"Réponses: {answers_created} | IP: {get_client_ip(request)}"
         )
         
-        messages.success(request, "Merci pour votre participation ! Votre réponse a été enregistrée.")
-        
-        if survey.show_results:
-            return redirect('survey_results', pk=pk)
-        else:
-            return redirect('home')
+        # Rediriger vers une page de confirmation avec modale
+        context = {
+            'survey': survey,
+            'show_confirmation': True,
+            'participant_name': display_name,
+            'show_results': survey.show_results
+        }
+        return render(request, 'surveys/survey_confirmation.html', context)
     
     except Survey.DoesNotExist:
         messages.error(request, "Le sondage demandé n'existe pas.")
